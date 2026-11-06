@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "case-1",
+      "description": "Baseline full app test",
+      "viewport": {
+        "width": 400,
+        "height": 800
+      },
+      "actualApp": true,
+      "before": {
+        "status": "PENDING",
+        "evidence": []
+      },
+      "after": {
+        "status": "PENDING",
+        "evidence": []
+      }
+    }
+  ]
+}
