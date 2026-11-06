@@ -1,28 +1,63 @@
 {
   "schemaVersion": 1,
+  "scope": {
+    "route": "http://localhost:5173/page",
+    "viewport": {
+      "width": 400,
+      "height": 844,
+      "deviceScaleFactor": 1
+    }
+  },
   "regions": [
     {
-      "id": "example-region",
-      "figma": {
-        "node": "",
-        "source": "UNAVAILABLE",
-        "evidence": ""
+      "id": "CARD",
+      "figmaPath": "Frame / Card",
+      "domSelectors": [
+        "[data-design-qa=\"card\"]"
+      ],
+      "matchMode": "visual-region",
+      "source": "UNAVAILABLE",
+      "figmaEvidence": "screenshots/figma-card.png",
+      "expectedBox": {
+        "width": 320,
+        "height": 160
       },
-      "dom": {
-        "selector": "[data-design-qa='example-region']"
+      "tolerancePx": 1
+    },
+    {
+      "id": "BUTTON",
+      "figmaPath": "Frame / Card / Button",
+      "domSelectors": [
+        "[data-design-qa=\"button\"]"
+      ],
+      "matchMode": "visual-region",
+      "source": "UNAVAILABLE",
+      "figmaEvidence": "screenshots/figma-button.png",
+      "expectedBox": {
+        "height": 40
       },
-      "status": "PENDING",
-      "children": [],
-      "relations": [
-        {
-          "kind": "gapY",
-          "from": "selector-a",
-          "to": "selector-b",
-          "expected": null,
-          "tolerance": 1,
-          "source": "UNAVAILABLE"
-        }
-      ]
+      "tolerancePx": 1
+    }
+  ],
+  "relations": [
+    {
+      "id": "CARD_TO_BUTTON",
+      "from": "CARD",
+      "fromEdge": "top",
+      "to": "BUTTON",
+      "toEdge": "top",
+      "expectedPx": 90,
+      "tolerancePx": 1,
+      "source": "UNAVAILABLE",
+      "figmaEvidence": "screenshots/figma-distance.png"
+    }
+  ],
+  "containment": [
+    {
+      "parent": "CARD",
+      "child": "BUTTON",
+      "mode": "visual",
+      "tolerancePx": 1
     }
   ],
   "unmatchedFigma": [],
