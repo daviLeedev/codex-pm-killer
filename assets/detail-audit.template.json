@@ -1,27 +1,56 @@
 {
   "schemaVersion": 1,
-  "status": "PARTIAL",
   "scope": {
-    "frame": "",
-    "route": "",
-    "viewport": {}
+    "figmaFrame": "",
+    "appRoute": "http://localhost:5173/page",
+    "viewport": "400x844 @ DPR 1",
+    "lastUiChange": ""
+  },
+  "artifacts": {
+    "figmaBaseline": "screenshots/figma-frame.png",
+    "localBefore": "screenshots/local-before.png",
+    "localAfter": "screenshots/local-after.png",
+    "visualComparison": "visual/overlay.png",
+    "layoutReport": "layout-report.json",
+    "figmaLayerInventory": "screenshots/figma-expanded-layers.png",
+    "localDomInventory": "render/layout.json",
+    "regionMap": "region-map.json",
+    "regionReport": "region-report.json",
+    "reproMatrix": "repro-matrix.json",
+    "reproGateReport": "repro-gate-report.json"
   },
   "regions": [
     {
-      "id": "example-region",
-      "status": "PENDING",
-      "evidenceGrade": "UNAVAILABLE",
-      "checks": [],
-      "reviewedTwice": false
+      "id": "CARD",
+      "layer": "Frame / Card",
+      "selector": "[data-design-qa=\"card\"]",
+      "firstPass": "PENDING",
+      "secondPass": "PENDING",
+      "figmaEvidence": "screenshots/figma-card.png",
+      "localEvidence": "screenshots/local-card.png",
+      "appEvidenceGrade": "UNAVAILABLE",
+      "propertyChecks": [
+        {
+          "name": "width",
+          "source": "UNAVAILABLE",
+          "expected": "320px",
+          "actual": null,
+          "delta": null,
+          "tolerance": "1px",
+          "status": "PENDING",
+          "appEvidenceGrade": "UNAVAILABLE"
+        }
+      ]
     }
   ],
   "issues": [],
-  "secondPass": {
-    "done": false,
-    "figmaDirect": false,
-    "appDirect": false
-  },
-  "unresolved": [
-    "example-region"
-  ]
+  "regression": {
+    "finalVisualSweep": "PENDING",
+    "functionalSmoke": "PENDING",
+    "typecheckOrBuild": "PENDING",
+    "impactReview": "PENDING",
+    "impactEvidence": "",
+    "independentSourceRecheck": "PENDING",
+    "figmaRevisitedEvidence": ""
+  }
 }
