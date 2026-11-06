@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "frame": {
+    "name": "",
+    "width": null,
+    "height": null,
+    "viewOnly": true
+  },
+  "viewport": {
+    "width": null,
+    "height": null
+  },
+  "elements": [],
+  "evidence": [],
+  "notes": "Never assert estimated values as measured."
+}
