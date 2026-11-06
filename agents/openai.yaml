@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex PM Killer"
+  short_description: "Strict browser-only Figma↔DOM audits with persistent cross-project QA knowledge"
+  default_prompt: "Use $codex-pm-killer to inspect view-only Figma via my existing logged-in browser (never Figma MCP/API), map every scoped visual region to actual app DOM, verify actual rendered geometry and states, fix issues, run strict second-pass QA, then propose redacted lessons for the persistent knowledge base. Never claim unverified areas are complete."
