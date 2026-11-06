@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "status": "PARTIAL",
+  "scope": {
+    "frame": "",
+    "route": "",
+    "viewport": {}
+  },
+  "regions": [
+    {
+      "id": "example-region",
+      "status": "PENDING",
+      "evidenceGrade": "UNAVAILABLE",
+      "checks": [],
+      "reviewedTwice": false
+    }
+  ],
+  "issues": [],
+  "secondPass": {
+    "done": false,
+    "figmaDirect": false,
+    "appDirect": false
+  },
+  "unresolved": [
+    "example-region"
+  ]
+}
