@@ -1,0 +1,11 @@
+# Scoped design coverage
+- [ ] Figma frame and all visible semantic regions inventoried from layers panel
+- [ ] Every inventoried region mapped to real app DOM or explicitly BLOCKED
+- [ ] Parent / children / sibling geometry and rendered distances measured
+- [ ] Text and inline typography / actual line boxes checked
+- [ ] Click target / wrapper / visible glyph distinguished
+- [ ] Exact Figma text, state, and viewport used for baseline
+- [ ] Wrapping boundary and relevant interactive states tested in actual app
+- [ ] Changes retested on parents, siblings, and dependent regions
+- [ ] Independent second pass directly inspects both sources
+- [ ] Missing or estimated evidence never counted as VERIFIED
