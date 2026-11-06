@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "CASE-0001",
+  "title": "Anonymized retrospective of repeated Figma-to-DOM QA misses",
+  "source": "User-provided conversation recap (not independently inspected in this session)",
+  "sourceProject": "REDACTED",
+  "redacted": true,
+  "evidenceGrade": "REPORTED_ONLY",
+  "reviewed": true,
+  "description": "Reported causes included parent/child cumulative gaps, hit target size vs vector ink, mixed inline line-height, wrap-boundary positioning, and auth watch/navigation race.",
+  "rootCause": "Missing region-to-DOM end-to-end mapping and false elevation of partial/source-only checks to full UI verification.",
+  "resolution": "Require measured geometric relations, separate evidence levels, exact-state reproduction, and full dependent-area retest.",
+  "patternIds": ["QA-0001", "QA-0002", "QA-0003", "QA-0004", "QA-0005", "QA-0006"],
+  "reproductionStatus": "REPORTED_NOT_REPRODUCED_BY_THIS_SKILL",
+  "proofSummary": "Retrospective report only; no screenshots, design values, or customer-specific data stored."
+}
