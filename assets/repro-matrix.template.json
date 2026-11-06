@@ -1,22 +1,36 @@
 {
   "schemaVersion": 1,
+  "scope": {
+    "appRoute": "http://localhost:5173/page",
+    "lastUiChange": "not-yet-tested"
+  },
   "cases": [
     {
-      "id": "case-1",
-      "description": "Baseline full app test",
-      "viewport": {
-        "width": 400,
-        "height": 800
-      },
-      "actualApp": true,
-      "before": {
-        "status": "PENDING",
-        "evidence": []
-      },
-      "after": {
-        "status": "PENDING",
-        "evidence": []
-      }
+      "id": "WRAP_BOUNDARY",
+      "category": "RESPONSIVE",
+      "reportedDefect": false,
+      "steps": "Inspect actual app immediately before, at, and after line-wrap boundary",
+      "widthsPx": [
+        399,
+        400,
+        401
+      ],
+      "environment": "REAL_APP",
+      "before": "NOT_APPLICABLE",
+      "beforeEvidence": "",
+      "after": "PENDING",
+      "afterEvidence": ""
+    },
+    {
+      "id": "NAVIGATION",
+      "category": "NAVIGATION",
+      "reportedDefect": false,
+      "steps": "Click to trigger navigation; inspect store, watcher, guard and unmount order",
+      "environment": "REAL_APP",
+      "before": "NOT_APPLICABLE",
+      "after": "PENDING",
+      "afterEvidence": "",
+      "eventTimeline": ""
     }
   ]
 }
