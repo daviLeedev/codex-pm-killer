@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "regions": [
+    {
+      "id": "example-region",
+      "figma": {
+        "node": "",
+        "source": "UNAVAILABLE",
+        "evidence": ""
+      },
+      "dom": {
+        "selector": "[data-design-qa='example-region']"
+      },
+      "status": "PENDING",
+      "children": [],
+      "relations": [
+        {
+          "kind": "gapY",
+          "from": "selector-a",
+          "to": "selector-b",
+          "expected": null,
+          "tolerance": 1,
+          "source": "UNAVAILABLE"
+        }
+      ]
+    }
+  ],
+  "unmatchedFigma": [],
+  "unmatchedDOM": []
+}
