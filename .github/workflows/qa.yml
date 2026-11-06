@@ -1,0 +1,13 @@
+name: Verify codex-pm-killer
+on: [push, pull_request]
+jobs:
+  audit-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/validate-knowledge.mjs
+      - run: node tests/knowledge-selftest.mjs
+      - run: node tests/selftest.mjs
