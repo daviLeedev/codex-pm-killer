@@ -1,16 +1,30 @@
 {
   "schemaVersion": 1,
-  "frame": {
-    "name": "",
-    "width": null,
-    "height": null,
-    "viewOnly": true
+  "target": {
+    "figmaFrame": "",
+    "appRoute": "",
+    "viewport": {
+      "width": 400,
+      "height": 844,
+      "deviceScaleFactor": 1
+    }
   },
-  "viewport": {
-    "width": null,
-    "height": null
-  },
-  "elements": [],
-  "evidence": [],
-  "notes": "Never assert estimated values as measured."
+  "checks": [
+    {
+      "name": "Example component outer size",
+      "figmaLayer": "Frame / Component",
+      "selector": "[data-design-qa=\"component\"]",
+      "source": "UNAVAILABLE",
+      "expected": {
+        "box": {
+          "width": 320,
+          "height": 80
+        },
+        "css": {
+          "fontSize": "16px"
+        }
+      },
+      "tolerancePx": 1
+    }
+  ]
 }
