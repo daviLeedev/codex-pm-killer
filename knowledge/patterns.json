@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "patterns": [
+    {
+      "id": "QA-0001",
+      "slug": "composite-spacing",
+      "title": "Composite Spacing",
+      "category": "layout",
+      "status": "HEURISTIC",
+      "triggers": [
+        "gap",
+        "margin",
+        "padding",
+        "spacing",
+        "간격",
+        "약관",
+        "popup",
+        "모달"
+      ],
+      "failureMode": "Individual CSS values can match while cumulative rendered distances and overall container height diverge.",
+      "checks": [
+        "Map enclosing Figma region to real app region and measure parent boundary, each child boundary, and next sibling.",
+        "Check actual previous.bottom to next.top, total content height, scroll/footer placement, and upstream padding or collapsing margins."
+      ],
+      "requiredEvidence": "REAL_FIGMA_AND_APP_MEASURED",
+      "supportingCaseIds": [
+        "CASE-0001"
+      ],
+      "projectSpecificDesignValuesAllowed": false
+    },
+    {
+      "id": "QA-0002",
+      "slug": "hit-target-vs-vector",
+      "title": "Hit Target Vs Vector",
+      "category": "interaction",
+      "status": "HEURISTIC",
+      "triggers": [
+        "icon",
+        "svg",
+        "close",
+        "arrow",
+        "button",
+        "아이콘",
+        "화살표",
+        "닫기"
+      ],
+      "failureMode": "Visible symbol size is confused with interactive hit rectangle or icon wrapper.",
+      "checks": [
+        "Measure click target bounds, icon wrapper bounds, and visible SVG/vector footprint separately.",
+        "Check spacing to adjacent label plus focus/hover/touch states."
+      ],
+      "requiredEvidence": "REAL_FIGMA_AND_APP_MEASURED",
+      "supportingCaseIds": [
+        "CASE-0001"
+      ],
+      "projectSpecificDesignValuesAllowed": false
+    },
+    {
+      "id": "QA-0003",
+      "slug": "mixed-inline-linebox",
+      "title": "Mixed Inline Linebox",
+      "category": "typography",
+      "status": "HEURISTIC",
+      "triggers": [
+        "strong",
+        "font",
+        "line-height",
+        "wrap",
+        "bold",
+        "줄높이",
+        "강조",
+        "텍스트"
+      ],
+      "failureMode": "Mixed inline text styling changes actual line-box height and shifts the full card.",
+      "checks": [
+        "Measure final text line boxes and wrapping with baseline copy; compare parent card and next sibling after applying styles.",
+        "Test long copy and a line-break boundary width in the real application."
+      ],
+      "requiredEvidence": "REAL_FIGMA_AND_APP_MEASURED",
+      "supportingCaseIds": [
+        "CASE-0001"
+      ],
+      "projectSpecificDesignValuesAllowed": false
+    },
+    {
+      "id": "QA-0004",
+      "slug": "wrap-boundary-responsive",
+      "title": "Wrap Boundary Responsive",
+      "category": "responsive",
+      "status": "HEURISTIC",
+      "triggers": [
+        "responsive",
+        "width",
+        "breakpoint",
+        "mobile",
+        "반응형",
+        "유의사항",
+        "중앙정렬",
+        "줄바꿈"
+      ],
+      "failureMode": "A centered min-height text container moves when a sentence changes between one and multiple lines.",
+      "checks": [
+        "Check just before, at, and after actual wrap threshold, including any user-reported exact widths.",
+        "Compare top anchoring, parent height, actual line count, and dependent siblings on real app route."
+      ],
+      "requiredEvidence": "REAL_FIGMA_AND_APP_MEASURED",
+      "supportingCaseIds": [
+        "CASE-0001"
+      ],
+      "projectSpecificDesignValuesAllowed": false
+    },
+    {
+      "id": "QA-0005",
+      "slug": "state-transition-navigation",
+      "title": "State Transition Navigation",
+      "category": "behavior",
+      "status": "HEURISTIC",
+      "triggers": [
+        "route",
+        "router",
+        "watch",
+        "auth",
+        "exit",
+        "reset",
+        "store",
+        "이동",
+        "종료",
+        "인증"
+      ],
+      "failureMode": "Valid independent operations interact through watchers/guards and cause navigation races.",
+      "checks": [
+        "Trace click, async work, state reset, watchers, guards, navigation, and unmount.",
+        "Test success, cancellation, watcher-first ordering and repeated-click execution in the real app."
+      ],
+      "requiredEvidence": "REAL_APP_REPRODUCED",
+      "supportingCaseIds": [
+        "CASE-0001"
+      ],
+      "projectSpecificDesignValuesAllowed": false
+    },
+    {
+      "id": "QA-0006",
+      "slug": "false-audit-completeness",
+      "title": "False Audit Completeness",
+      "category": "process",
+      "status": "HEURISTIC",
+      "triggers": [
+        "audit",
+        "review",
+        "figma",
+        "pixel",
+        "검수",
+        "누락",
+        "통과"
+      ],
+      "failureMode": "Build pass, source-only fixture, and subordinate review can be reported as full Figma/runtime verification.",
+      "checks": [
+        "Record Figma UI vs local runtime vs source-only vs inference evidence per property.",
+        "Require second independent full-scope sweep and explicit unmatched layer/state inventory."
+      ],
+      "requiredEvidence": "AUDIT_EVIDENCE_REVIEW",
+      "supportingCaseIds": [
+        "CASE-0001"
+      ],
+      "projectSpecificDesignValuesAllowed": false
+    }
+  ]
+}
