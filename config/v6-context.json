@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "maxCharsByRole": {
+    "main": 12000,
+    "figma": 5500,
+    "dom": 5500,
+    "difference": 10500,
+    "fixer": 8500,
+    "review": 4500,
+    "gate": 12000,
+    "default": 6000
+  }
+}

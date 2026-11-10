@@ -55,3 +55,20 @@ See [`references/v6-multi-agent.md`](references/v6-multi-agent.md). The coordina
 **Suggested default:** MAIN Sol Medium; Figma inspector Sol Medium, runtime DOM inspector a cheaper available model, Difference Analyst Sol High, UI Fixer Sol Medium; second Figma reviewer must be genuinely independent with direct access. Astra is off unless the user explicitly approves it. Model family labels are preferences, not verified Codex model IDs; generate actual project `.codex/agents` TOMLs using `scripts/v6-generate-agents.mjs` and your *available* model IDs. If direct browser sharing is unavailable, MAIN owns Figma inspection and independent direct Figma verification remains BLOCKED unless another agent gets its own viewer access.
 
 Quick test: `node tests/v6-selftest.mjs` (synthetic invariants, not a live Figma fidelity claim).
+
+
+## v6 Smart Context Engineering (role-scoped, resumable)
+
+See [`references/v6-context-management.md`](references/v6-context-management.md). `scripts/v6-context.mjs` keeps an evidence-hashed local ledger, builds bounded task packs, separates Figma/DOM/reviewer working contexts, and creates strict hash-verified checkpoints for session resumes. `config/v6-balanced.json` **requires a current role pack for each new agent assignment**; previously generated packs must be re-issued if their source evidence changes. `config/v6-context.json` defines per-role character ceilings (not precise token or billing limits).
+
+```bash
+# In the target application's directory, AFTER v6-orchestrator init:
+node /path/to/codex-pm-killer/scripts/v6-context.mjs init --workspace "$PWD"
+node /path/to/codex-pm-killer/scripts/v6-context.mjs pack --workspace "$PWD" --task figma
+node /path/to/codex-pm-killer/scripts/v6-context.mjs pack --workspace "$PWD" --task dom
+# Repeat with difference, fixer, review, gate when each stage becomes ready.
+node /path/to/codex-pm-killer/scripts/v6-context.mjs checkpoint --workspace "$PWD"
+node /path/to/codex-pm-killer/scripts/v6-context.mjs resume --workspace "$PWD"
+```
+
+Validation: `node tests/v6-context-selftest.mjs`. **Context packs reduce supplied input, not necessarily total model cost**; rework rates and real usage must be measured in Codex. This is a local file-backed contract, not direct access to Codex's hidden context/compaction internals.

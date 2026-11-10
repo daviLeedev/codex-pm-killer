@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),cli=path.join(root,'scripts/v6-orchestrator.mjs');
+const contextCli=path.join(root,'scripts/v6-context.mjs');
 const tmp=await mkdtemp(path.join(tmpdir(),'pmv6-')),qa=path.join(tmp,'.design-qa/v6');let checks=0;
 const scope={figmaFrame:'Terms Modal',appRoute:'http://localhost:5173/terms',viewport:{width:400,height:844,deviceScaleFactor:1},baselineContentSha256:'a'.repeat(64)};
 async function fixture(name,body){const p=path.join(qa,name);await mkdir(path.dirname(p),{recursive:true});await writeFile(p,typeof body==='string'?body:JSON.stringify(body,null,2));return '.design-qa/v6/'+name}
@@ -16,6 +17,10 @@ function rejected(r,why){assert(!r.ok,why);checks++}
 try{
  await fixture('scope.json',scope);ok(cmd('init','--scope','.design-qa/v6/scope.json'),'Initialize run');
  const state=JSON.parse(await readFile(path.join(qa,'state.json'),'utf8')),runId=state.runId;
+ const ctx=(...args)=>{const r=spawnSync(process.execPath,[contextCli,args[0],'--workspace',tmp,...args.slice(1)],{encoding:'utf8'});return {ok:r.status===0,out:r.stdout,err:r.stderr,code:r.status}};
+ ok(ctx('init'),'Initialize role-scoped context');
+ const pack=task=>ok(ctx('pack','--task',task),'Build context pack '+task);
+ pack('figma');pack('dom');
  ok(cmd('status'),'Report status');
  rejected(cmd('assign','--task','difference','--actor','analyst','--model','sol'),'Prevent early comparison');
  for(const [actor,figma,dom] of [['A',true,false],['B',false,true],['E',true,false]]){
@@ -42,20 +47,20 @@ try{
  rejected(cmd('browser','--action','release','--actor','A','--nonce','invalid'),'Reject wrong lease nonce');
  ok(cmd('browser','--action','release','--actor','A','--nonce',nonce),'Release Figma lock');
  ok(await record('dom','B',{appSource:'APP_RUNTIME_MEASURED'}),'Record DOM');
- ok(cmd('assign','--task','difference','--actor','C','--model','sol'),'Difference after both');
+ pack('difference');ok(cmd('assign','--task','difference','--actor','C','--model','sol'),'Difference after both');
  rejected(await record('difference','C',{crossChecked:false,sourceTasks:['figma','dom']}),'Deny unsupported compare');
  ok(await record('difference','C',{crossChecked:true,sourceTasks:['figma','dom']}),'Record comparison');
  rejected(cmd('assign','--task','fixer','--actor','D','--model','sol'),'Require explicit writer grant');
- ok(cmd('assign','--task','fixer','--actor','D','--model','sol','--allow-edit','true'),'Fixer writes');
+ pack('fixer');ok(cmd('assign','--task','fixer','--actor','D','--model','sol','--allow-edit','true'),'Fixer writes');
  ok(await record('fixer','D',{changedFiles:['src/components/Terms.vue'],regressionTests:['npm run build']}),'Record fixer');
  rejected(cmd('assign','--task','review','--actor','A','--model','sol'),'Second reviewer cannot be first');
  rejected(cmd('assign','--task','review','--actor','E','--model','sol'),'Reviewer needs browser lease');
  const lease2=cmd('browser','--action','acquire','--actor','E');ok(lease2,'Reviewer lease acquired');const nonce2=JSON.parse(lease2.out).nonce;
- ok(cmd('assign','--task','review','--actor','E','--model','sol'),'Independent reviewer dispatched');
+ pack('review');ok(cmd('assign','--task','review','--actor','E','--model','sol'),'Independent reviewer dispatched');
  rejected(await record('review','E',{figmaDirect:true,figmaSource:'FIGMA_UI_OBSERVED',independent:false,originalInspector:'A',newlyFoundRegions:[]}),'Cannot fake independent');
  ok(await record('review','E',{figmaDirect:true,figmaSource:'FIGMA_UI_OBSERVED',independent:true,originalInspector:'A',newlyFoundRegions:[]}),'Independent verified contract');
  ok(cmd('browser','--action','release','--actor','E','--nonce',nonce2),'Release reviewer browser');
- ok(cmd('assign','--task','gate','--actor','MAIN','--model','node'),'Final task');
+ pack('gate');ok(cmd('assign','--task','gate','--actor','MAIN','--model','node'),'Final task');
  const reports={v4:'.design-qa/v6/v4-gate.json',v5:'.design-qa/v6/v5-gate.json',independent:'.design-qa/v6/v5-independent.json'};
  await fixture('v4-gate.json',{status:'VERIFIED_RECORDED_SCOPE',errors:[]});
  await fixture('v5-gate.json',{status:'PARTIAL',errors:['gap']});
@@ -70,7 +75,7 @@ try{
   const policy=JSON.parse(await readFile(path.join(root,'config/v6-balanced.json'),'utf8'));policy.budget.maxAbstractUnits=5;await writeFile(path.join(bqa,'low-budget.json'),JSON.stringify(policy));
   const cr=(...args)=>spawnSync(process.execPath,[cli,args[0],'--workspace',budgetTmp,...args.slice(1)],{encoding:'utf8'});
   assert.equal(cr('init','--scope','.design-qa/v6/scope.json','--config',path.join(bqa,'low-budget.json')).status,0);checks++;
-  await writeFile(path.join(bqa,'cap.txt'),'app runtime');assert.equal(cr('capability','--actor','B','--figma','false','--dom','true','--evidence','.design-qa/v6/cap.txt').status,0);
+  assert.equal(spawnSync(process.execPath,[contextCli,'init','--workspace',budgetTmp],{encoding:'utf8'}).status,0);assert.equal(spawnSync(process.execPath,[contextCli,'pack','--workspace',budgetTmp,'--task','dom'],{encoding:'utf8'}).status,0);await writeFile(path.join(bqa,'cap.txt'),'app runtime');assert.equal(cr('capability','--actor','B','--figma','false','--dom','true','--evidence','.design-qa/v6/cap.txt').status,0);
   assert.notEqual(cr('assign','--task','dom','--actor','B','--model','luna').status,0);checks++;
  }finally{await rm(budgetTmp,{recursive:true,force:true})}
  console.log('v6 synthetic selftest PASS ('+checks+' assertions, including mismatched scope, wrong owner, budget, Astra block, independent review, dependencies)');
