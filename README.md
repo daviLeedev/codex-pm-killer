@@ -47,3 +47,11 @@ Private repo is recommended until you review any customer-specific examples. `.d
 New: [`references/v5-strict-audit.md`](references/v5-strict-audit.md) documents real-DOM inventory generation, suggested Figma-to-DOM matching with explicit approval, geometry and content-box validation, independent re-inspection, and a fail-closed combined gate. All new commands are in `scripts/v5-audit.mjs`. Run the synthetic mutation suite with `node tests/v5-selftest.mjs`.
 
 **Important:** v5 does not read Figma programmatically; the logged-in Codex browser must inspect visible viewer Layers and Properties. A second sweep by the same agent is not independently verified. If these requirements cannot be met, the audit status stays PARTIAL.
+
+## v6 — balanced multi-agent coordination
+
+See [`references/v6-multi-agent.md`](references/v6-multi-agent.md). The coordinator (`scripts/v6-orchestrator.mjs`) implements task dependencies, atomic state serialization, exclusive browser-owner lease, capability evidence, role-specific handoff contracts, a **2-worker** admission limit, estimated work-unit budgeting and fail-closed escalation. It does **not** directly spawn Codex agents, bypass login permissions, change model selection, or charge real credits.
+
+**Suggested default:** MAIN Sol Medium; Figma inspector Sol Medium, runtime DOM inspector a cheaper available model, Difference Analyst Sol High, UI Fixer Sol Medium; second Figma reviewer must be genuinely independent with direct access. Astra is off unless the user explicitly approves it. Model family labels are preferences, not verified Codex model IDs; generate actual project `.codex/agents` TOMLs using `scripts/v6-generate-agents.mjs` and your *available* model IDs. If direct browser sharing is unavailable, MAIN owns Figma inspection and independent direct Figma verification remains BLOCKED unless another agent gets its own viewer access.
+
+Quick test: `node tests/v6-selftest.mjs` (synthetic invariants, not a live Figma fidelity claim).

@@ -145,3 +145,14 @@ Read [`references/v5-strict-audit.md`](references/v5-strict-audit.md) and run th
 4. A second pass by the same agent is NOT an independent audit; when no different reviewer with direct Figma access is available, report PARTIAL without inventing access.
 5. Run `node tests/v5-selftest.mjs` and v4 tests after changing verification scripts. Mutation tests must catch planted defects. A gate passing its own JSON fixtures proves consistency only, not actual product completeness.
 6. `v5-final.json` is the acceptance record. A failure or inaccessible viewer prevents full VERIFIED claims. Never weaken a gate to make a report pass.
+
+## v6 model-adaptive multi-agent mode (balanced default)
+
+When the user requests subagents, parallel Figma/DOM inspection, or cost control, **read `references/v6-multi-agent.md` before assigning work**. Treat it as an extension of v5, never a relaxation of real Figma/runtime evidence standards.
+
+1. Start at `scripts/v6-orchestrator.mjs init --workspace <app-project>`. The host (Codex) must actually spawn all agents; the script **cannot** spawn Codex agents or grant browser access.
+2. Discover actual available models and native subagent capabilities. `config/v6-balanced.json` contains **suggested families**, not guaranteed model IDs. Optionally run `scripts/v6-generate-agents.mjs` with user-verified model IDs to write project-scoped `.codex/agents` TOML files.
+3. MAIN coordinates A(Figma, browser owner) and B(DOM, app runtime) as independent parallel reads only. C(Difference) depends on both; D(Fixer, sole code writer) depends on C; independent Reviewer depends on D, and needs direct Figma view and a different actor than A. If the same Figma tab is shared, **never manipulate it concurrently**.
+4. Record direct Figma/browser capabilities, acquire an exclusive owner lease, and submit task artifacts by the `assets/v6-result.template.json` contract. Stop with PARTIAL/BLOCKED for missing browser access or incomplete evidence; don't invent a second reviewer.
+5. Budget work in abstract units, not real prices. Astra calls require real human approval *outside this script*; no silent escalation or model switch. Prefer lightweight work in cheaper verified models while keeping the same v4/v5 acceptance gates.
+6. Final success requires full v4/v5/v6 checks with actual project evidence. A passed synthetic test **does not** establish design fidelity.

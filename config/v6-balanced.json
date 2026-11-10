@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "name": "balanced",
+  "maxConcurrentWorkers": 2,
+  "budget": {
+    "maxAbstractUnits": 100,
+    "warnAtFraction": 0.75,
+    "allowAstraByDefault": false,
+    "estimatedTaskUnits": {"figma": 16, "dom": 8, "difference": 14, "fixer": 22, "review": 18, "gate": 4}
+  },
+  "roles": {
+    "main": {"preferredFamily": "Sol", "effort": "medium", "canEditApp": false},
+    "figma": {"preferredFamily": "Sol", "effort": "medium", "canEditApp": false, "requiresDirectFigma": true},
+    "dom": {"preferredFamily": "Luna", "effort": "medium", "canEditApp": false},
+    "difference": {"preferredFamily": "Sol", "effort": "high", "canEditApp": false},
+    "fixer": {"preferredFamily": "Sol", "effort": "medium", "canEditApp": true},
+    "review": {"preferredFamily": "Sol", "effort": "medium", "canEditApp": false, "requiresDirectFigma": true},
+    "gate": {"preferredFamily": "none", "effort": "none", "canEditApp": false}
+  },
+  "escalation": {"maxRetriesPerTask": 2, "humanApprovalForAstra": true, "onUnresolved": "PARTIAL"}
+}
