@@ -174,3 +174,14 @@ Context size limits are character budgets, **not real token counts or API/Codex 
 ## Release documentation contract
 
 Before publishing a new version or opening a release PR, update the root `VERSION` file and insert a new **latest-first** entry under `README.md → Version history / 패치노트`. Each entry must describe Added, Changed, Validation, and Limitations with concrete bullet points. Keep prior version entries intact; never publish customer data, screenshots, URLs, or internal code in public notes. Run `node scripts/check-release-notes.mjs` and `node tests/release-notes-selftest.mjs`. A passing note check verifies documentation structure, not product quality. See `references/release-process.md`.
+
+
+## v6.1 evidence provenance and report gate
+
+**MANDATORY whenever reporting a v6 Figma QA run or closing a PARTIAL audit:** read `references/v6.1-audit-provenance.md`, construct `.design-qa/<page>/audit-manifest.json` from `assets/v6-audit-manifest.template.json`, and run `node <skill-dir>/scripts/v6-audit-provenance.mjs --workspace "$PWD" --input .design-qa/<page>/audit-manifest.json --out .design-qa/<page>/audit-report.json`.
+
+- Label every check with actual runtime `REAL_APP_RUNTIME`, isolated fixture `ISOLATED_VUE_FIXTURE`, or `SOURCE_ONLY`. Source-only and fixture checks are not real-app verification; mocking does not validate internal API or mobile Safari.
+- Persist original Figma observation, actual application measurement and test execution as separate SHA-256-addressed evidence. No invented evidence or unsupported original/local file identity claims.
+- Require actual v6 orchestrator stage history and evidence for a multi-agent claim. An unexecuted skill is not a multi-agent audit; self-reported capability cannot prove direct browser access.
+- Keep every failing/blocking test open with category, impact and remediation. A test runner failure is NOT an application PASS, and a changed-area exemption is NOT a waiver.
+- The report gate generates `audit-report.json` and `FOLLOW_UP.md`. If it reports `PARTIAL`, present the blockers and next verification steps; do not override by changing a JSON status field. Continue applying v4/v5 geometry and behavior gates.

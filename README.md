@@ -8,6 +8,25 @@ Use with Codex's *currently authenticated in-app browser*. **No Figma MCP, Figma
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.1.0 — Audit Provenance & Failure Triage (2026-11-10)
+
+**Added**
+- 검증 환경 등급(`REAL_APP_RUNTIME` / `ISOLATED_VUE_FIXTURE` / `SOURCE_ONLY`)에 따른 검수 결과 분리와 격리 화면의 실 앱 PASS 승격 차단.
+- `scripts/v6-audit-provenance.mjs`: 실제 수치 재계산, 파일 SHA-256 연결, 에이전트 실행 원장 점검, 테스트 실패 분류, `PARTIAL` 후속 작업 생성.
+- `assets/v6-audit-manifest.template.json`, `references/v6.1-audit-provenance.md`, 실패 주입 합성 테스트 16종.
+
+**Changed**
+- v6 오케스트레이터를 사용했다는 서술만으로 멀티 에이전트 실행/독립 검수를 인정하지 않음.
+- 디자인 기준 충돌·테스트 인프라 오류·기능 회귀를 구분하고, 실패 상태를 최종 보고서에 남김.
+
+**Validation**
+- `node tests/v6-audit-provenance-selftest.mjs`로 격리 화면 오인, 잘못된 PASS, 증거 변조, 실패 은폐, 독립 검수 부재 등을 검출.
+- 기존 v4/v5/v6 CI 테스트와 패치노트 검증을 유지.
+
+**Limitations**
+- 서명되지 않은 자체 보고 자료와 SHA-256으로는 캡처의 진위·완전한 Figma 조사·실제 모델 실행 여부를 독립적으로 증명할 수 없음.
+- 실제 HKFIRE 내부망·iOS·API 및 여러 모델의 라이브 E2E 실행은 별도 검증 대상.
+
 ### v6.0.0 — Balanced Multi-Agent & Smart Context (2026-11-10)
 
 **Added**
