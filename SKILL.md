@@ -169,3 +169,8 @@ Read [`references/v6-context-management.md`](references/v6-context-management.md
 5. Run `v6-context.mjs verify` before final acceptance. The v4/v5/v6 visual verification gates remain the source of QA decisions; context integrity does not prove design fidelity.
 
 Context size limits are character budgets, **not real token counts or API/Codex prices**. This CLI does not control the model's internal context window, force compaction, create agents, share browser sessions, or grant file permissions.
+
+
+## Release documentation contract
+
+Before publishing a new version or opening a release PR, update the root `VERSION` file and insert a new **latest-first** entry under `README.md → Version history / 패치노트`. Each entry must describe Added, Changed, Validation, and Limitations with concrete bullet points. Keep prior version entries intact; never publish customer data, screenshots, URLs, or internal code in public notes. Run `node scripts/check-release-notes.mjs` and `node tests/release-notes-selftest.mjs`. A passing note check verifies documentation structure, not product quality. See `references/release-process.md`.

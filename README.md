@@ -4,6 +4,57 @@
 
 Use with Codex's *currently authenticated in-app browser*. **No Figma MCP, Figma API, Dev Mode subscription, or Figma plugin.**
 
+## Version history / 패치노트
+
+새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
+
+### v6.0.0 — Balanced Multi-Agent & Smart Context (2026-11-10)
+
+**Added**
+- MAIN Orchestrator와 Figma Inspector, DOM Inspector, Difference Analyst, UI Fixer, Independent Reviewer의 역할별 작업 계약.
+- Figma/DOM 병렬 조사, 후속 작업 의존성, 브라우저 단독 점유 잠금, 동시 실행 수 제한, 예산 초과 및 Astra 무단 에스컬레이션 차단.
+- `scripts/v6-orchestrator.mjs`, `scripts/v6-generate-agents.mjs`, 모델 매핑·균형형 정책 설정.
+- `scripts/v6-context.mjs`의 역할별 컨텍스트 팩, 증거 해시, 체크포인트/재개, 메인·서브 간 정보 격리.
+
+**Changed**
+- 코드 수정은 Fixer에만 맡기고, Figma 원본 조사와 실제 DOM 측정은 별도 근거로 수집한 다음 비교.
+- 모든 PASS 판정은 기존 v4/v5 검증기와 증거에 연결하고, 미확인 범위는 PARTIAL/BLOCKED로 보고.
+
+**Validation**
+- `node tests/v6-selftest.mjs`, `node tests/v6-config-selftest.mjs`, `node tests/v6-context-selftest.mjs`의 합성 테스트 및 기존 v4/v5 회귀 테스트.
+- `node scripts/check-release-notes.mjs`로 VERSION과 README 패치노트의 일치 여부 검사.
+
+**Limitations**
+- 조정 엔진이 Codex 서브에이전트를 직접 생성하거나 실제 모델을 자동 전환하지는 않음. 브라우저 소유권은 협력적 잠금.
+- 예산은 추정 작업 단위이며 실제 크레딧 사용량이 아님. 라이브 Figma/앱 전체 멀티에이전트 E2E 검증은 별도 필요함.
+
+### v5.0.0 — Strict Design Audit (2026-11-10)
+
+**Added**
+- 실제 앱 DOM 스냅샷 기반 영역 인벤토리와 Figma 읽기 전용 화면에서 수집한 레이어 인벤토리 대조.
+- Figma ↔ DOM 매핑 후보 생성 및 증거 기반 승인; 미매핑·잘린 스냅샷은 완료로 인정하지 않음.
+- 박스 크기, 내용 영역, 실제 경계 간격을 수치로 비교하는 검사와 독립 2차 검수 게이트.
+- `scripts/v5-audit.mjs`, `references/v5-strict-audit.md`, 검수용 JSON 템플릿.
+
+**Validation**
+- `node tests/v5-selftest.mjs`에서 인위적인 누락·수치 오류를 차단하는 합성 테스트.
+
+**Limitations**
+- Figma 레이어 자체는 자동 수집하지 않으며, 로그인된 브라우저에서 직접 읽은 증거가 필요함.
+- 합성 테스트 통과는 실제 제품의 픽셀 일치나 독립 검수를 증명하지 않음.
+
+### v4.0.0 — Browser QA & Knowledge Loop (baseline)
+
+**Added**
+- Figma 읽기 전용 브라우저 조사 지침과 실제 DOM·레이아웃·이미지 비교 스크립트.
+- Figma 시각 영역 ↔ DOM 영역 매핑, 반복 검수 및 근거별 PASS 제한.
+- 익명화된 오류 패턴을 저장·검색·검토 후 재사용하는 Knowledge Loop.
+
+**Limitations**
+- 모델의 내부 학습이 아니라 검증된 파일·Git 기반 지식 축적이며, 실제 브라우저 접근 권한이 필요함.
+
+**버전 갱신 규칙:** 다음 버전마다 `VERSION` 값을 올리고, 이 섹션 맨 위에 `Added / Changed / Validation / Limitations` 항목과 해당 버전의 실질적인 변경을 작성합니다. 기존 노트는 삭제하지 않습니다. 사용자/고객사 정보나 Figma 캡처는 공개 README에 기록하지 않습니다.
+
 ## Install in Codex
 
 ```bash
