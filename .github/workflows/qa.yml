@@ -12,3 +12,8 @@ jobs:
       - run: node tests/knowledge-selftest.mjs
       - run: node tests/selftest.mjs
       - run: node tests/v5-selftest.mjs
+      - run: node tests/v6-selftest.mjs
+      - run: node tests/v6-config-selftest.mjs
+      - run: node tests/v6-context-selftest.mjs
+      - run: node tests/release-notes-selftest.mjs
+      - run: node scripts/check-release-notes.mjs

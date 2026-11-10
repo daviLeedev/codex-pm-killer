@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "runId": "COPY_FROM_.design-qa/v6/state.json",
+  "role": "figma",
+  "actor": "inspector-A",
+  "status": "PARTIAL",
+  "artifacts": [
+    ".design-qa/v6/figma-screenshot.png",
+    ".design-qa/v6/figma-inventory.json"
+  ],
+  "figmaDirect": true,
+  "figmaSource": "FIGMA_UI_OBSERVED",
+  "notes": "Example structure only: actual evidence required before PASS",
+  "scope": {
+    "figmaFrame": "terms",
+    "appRoute": "http://localhost:5173/terms",
+    "viewport": {
+      "width": 400,
+      "height": 844,
+      "deviceScaleFactor": 1
+    },
+    "baselineContentSha256": "COPY_REAL_TEXT_HASH"
+  }
+}

@@ -8,6 +8,26 @@ Use with Codex's *currently authenticated in-app browser*. **No Figma MCP, Figma
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.0.0 — Balanced Multi-Agent & Smart Context (2026-11-10)
+
+**Added**
+- MAIN Orchestrator와 Figma Inspector, DOM Inspector, Difference Analyst, UI Fixer, Independent Reviewer의 역할별 작업 계약.
+- Figma/DOM 병렬 조사, 후속 작업 의존성, 브라우저 단독 점유 잠금, 동시 실행 수 제한, 예산 초과 및 Astra 무단 에스컬레이션 차단.
+- `scripts/v6-orchestrator.mjs`, `scripts/v6-generate-agents.mjs`, 모델 매핑·균형형 정책 설정.
+- `scripts/v6-context.mjs`의 역할별 컨텍스트 팩, 증거 해시, 체크포인트/재개, 메인·서브 간 정보 격리.
+
+**Changed**
+- 코드 수정은 Fixer에만 맡기고, Figma 원본 조사와 실제 DOM 측정은 별도 근거로 수집한 다음 비교.
+- 모든 PASS 판정은 기존 v4/v5 검증기와 증거에 연결하고, 미확인 범위는 PARTIAL/BLOCKED로 보고.
+
+**Validation**
+- `node tests/v6-selftest.mjs`, `node tests/v6-config-selftest.mjs`, `node tests/v6-context-selftest.mjs`의 합성 테스트 및 기존 v4/v5 회귀 테스트.
+- `node scripts/check-release-notes.mjs`로 VERSION과 README 패치노트의 일치 여부 검사.
+
+**Limitations**
+- 조정 엔진이 Codex 서브에이전트를 직접 생성하거나 실제 모델을 자동 전환하지는 않음. 브라우저 소유권은 협력적 잠금.
+- 예산은 추정 작업 단위이며 실제 크레딧 사용량이 아님. 라이브 Figma/앱 전체 멀티에이전트 E2E 검증은 별도 필요함.
+
 ### v5.0.0 — Strict Design Audit (2026-11-10)
 
 **Added**
@@ -78,3 +98,28 @@ Private repo is recommended until you review any customer-specific examples. `.d
 New: [`references/v5-strict-audit.md`](references/v5-strict-audit.md) documents real-DOM inventory generation, suggested Figma-to-DOM matching with explicit approval, geometry and content-box validation, independent re-inspection, and a fail-closed combined gate. All new commands are in `scripts/v5-audit.mjs`. Run the synthetic mutation suite with `node tests/v5-selftest.mjs`.
 
 **Important:** v5 does not read Figma programmatically; the logged-in Codex browser must inspect visible viewer Layers and Properties. A second sweep by the same agent is not independently verified. If these requirements cannot be met, the audit status stays PARTIAL.
+
+## v6 — balanced multi-agent coordination
+
+See [`references/v6-multi-agent.md`](references/v6-multi-agent.md). The coordinator (`scripts/v6-orchestrator.mjs`) implements task dependencies, atomic state serialization, exclusive browser-owner lease, capability evidence, role-specific handoff contracts, a **2-worker** admission limit, estimated work-unit budgeting and fail-closed escalation. It does **not** directly spawn Codex agents, bypass login permissions, change model selection, or charge real credits.
+
+**Suggested default:** MAIN Sol Medium; Figma inspector Sol Medium, runtime DOM inspector a cheaper available model, Difference Analyst Sol High, UI Fixer Sol Medium; second Figma reviewer must be genuinely independent with direct access. Astra is off unless the user explicitly approves it. Model family labels are preferences, not verified Codex model IDs; generate actual project `.codex/agents` TOMLs using `scripts/v6-generate-agents.mjs` and your *available* model IDs. If direct browser sharing is unavailable, MAIN owns Figma inspection and independent direct Figma verification remains BLOCKED unless another agent gets its own viewer access.
+
+Quick test: `node tests/v6-selftest.mjs` (synthetic invariants, not a live Figma fidelity claim).
+
+
+## v6 Smart Context Engineering (role-scoped, resumable)
+
+See [`references/v6-context-management.md`](references/v6-context-management.md). `scripts/v6-context.mjs` keeps an evidence-hashed local ledger, builds bounded task packs, separates Figma/DOM/reviewer working contexts, and creates strict hash-verified checkpoints for session resumes. `config/v6-balanced.json` **requires a current role pack for each new agent assignment**; previously generated packs must be re-issued if their source evidence changes. `config/v6-context.json` defines per-role character ceilings (not precise token or billing limits).
+
+```bash
+# In the target application's directory, AFTER v6-orchestrator init:
+node /path/to/codex-pm-killer/scripts/v6-context.mjs init --workspace "$PWD"
+node /path/to/codex-pm-killer/scripts/v6-context.mjs pack --workspace "$PWD" --task figma
+node /path/to/codex-pm-killer/scripts/v6-context.mjs pack --workspace "$PWD" --task dom
+# Repeat with difference, fixer, review, gate when each stage becomes ready.
+node /path/to/codex-pm-killer/scripts/v6-context.mjs checkpoint --workspace "$PWD"
+node /path/to/codex-pm-killer/scripts/v6-context.mjs resume --workspace "$PWD"
+```
+
+Validation: `node tests/v6-context-selftest.mjs`. **Context packs reduce supplied input, not necessarily total model cost**; rework rates and real usage must be measured in Codex. This is a local file-backed contract, not direct access to Codex's hidden context/compaction internals.

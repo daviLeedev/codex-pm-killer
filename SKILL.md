@@ -145,3 +145,32 @@ Read [`references/v5-strict-audit.md`](references/v5-strict-audit.md) and run th
 4. A second pass by the same agent is NOT an independent audit; when no different reviewer with direct Figma access is available, report PARTIAL without inventing access.
 5. Run `node tests/v5-selftest.mjs` and v4 tests after changing verification scripts. Mutation tests must catch planted defects. A gate passing its own JSON fixtures proves consistency only, not actual product completeness.
 6. `v5-final.json` is the acceptance record. A failure or inaccessible viewer prevents full VERIFIED claims. Never weaken a gate to make a report pass.
+
+## v6 model-adaptive multi-agent mode (balanced default)
+
+When the user requests subagents, parallel Figma/DOM inspection, or cost control, **read `references/v6-multi-agent.md` before assigning work**. Treat it as an extension of v5, never a relaxation of real Figma/runtime evidence standards.
+
+1. Start at `scripts/v6-orchestrator.mjs init --workspace <app-project>`. The host (Codex) must actually spawn all agents; the script **cannot** spawn Codex agents or grant browser access.
+2. Discover actual available models and native subagent capabilities. `config/v6-balanced.json` contains **suggested families**, not guaranteed model IDs. Optionally run `scripts/v6-generate-agents.mjs` with user-verified model IDs to write project-scoped `.codex/agents` TOML files.
+3. MAIN coordinates A(Figma, browser owner) and B(DOM, app runtime) as independent parallel reads only. C(Difference) depends on both; D(Fixer, sole code writer) depends on C; independent Reviewer depends on D, and needs direct Figma view and a different actor than A. If the same Figma tab is shared, **never manipulate it concurrently**.
+4. Record direct Figma/browser capabilities, acquire an exclusive owner lease, and submit task artifacts by the `assets/v6-result.template.json` contract. Stop with PARTIAL/BLOCKED for missing browser access or incomplete evidence; don't invent a second reviewer.
+5. Budget work in abstract units, not real prices. Astra calls require real human approval *outside this script*; no silent escalation or model switch. Prefer lightweight work in cheaper verified models while keeping the same v4/v5 acceptance gates.
+6. Final success requires full v4/v5/v6 checks with actual project evidence. A passed synthetic test **does not** establish design fidelity.
+
+
+## v6 Smart Context Management — mandatory in multi-agent mode
+
+Read [`references/v6-context-management.md`](references/v6-context-management.md) **before** spawning Figma/DOM inspector subagents. With `config/v6-balanced.json`, role-specific **context packs are required** for each assignment and validated again before `record`:
+
+1. After `v6-orchestrator.mjs init`, run `v6-context.mjs init`. Keep all raw source evidence and the append-only note ledger inside the target app's ignored `.design-qa/v6/`.
+2. Before each `assign`, run `v6-context.mjs pack --task <role>`. Agents receive only the relevant pack and separately fetched, hash-checked raw evidence. Figma and DOM remain blind to one another; independent Reviewer does not receive first-pass findings or fixes.
+3. Record new observations with `v6-context.mjs note` using a short summary, evidence path, priority and confidence. P0 notes (constraints/blockers/critical decisions) must fit; do not silently omit or compress them. Lower priority notes can be omitted from packs, but their IDs remain discoverable.
+4. Run `v6-context.mjs checkpoint` before model switches, handoff or planned session compaction. Run `resume` after a restart; if hashes are stale, re-read source artifacts and issue a fresh checkpoint. Summary-only memory is never authoritative.
+5. Run `v6-context.mjs verify` before final acceptance. The v4/v5/v6 visual verification gates remain the source of QA decisions; context integrity does not prove design fidelity.
+
+Context size limits are character budgets, **not real token counts or API/Codex prices**. This CLI does not control the model's internal context window, force compaction, create agents, share browser sessions, or grant file permissions.
+
+
+## Release documentation contract
+
+Before publishing a new version or opening a release PR, update the root `VERSION` file and insert a new **latest-first** entry under `README.md → Version history / 패치노트`. Each entry must describe Added, Changed, Validation, and Limitations with concrete bullet points. Keep prior version entries intact; never publish customer data, screenshots, URLs, or internal code in public notes. Run `node scripts/check-release-notes.mjs` and `node tests/release-notes-selftest.mjs`. A passing note check verifies documentation structure, not product quality. See `references/release-process.md`.
