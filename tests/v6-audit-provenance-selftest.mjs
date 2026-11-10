@@ -37,7 +37,7 @@ async function base(){
   tasks.push({id,actor:who,model:'sol',status:'DONE',evidence:[{path:'proof/stage-'+id+'.txt',sha256:sha(proof)}]});
   events.push({type:'ASSIGN',task:id,actor:who},{type:'RECORD',task:id,actor:who,status:'DONE'});
  }
- await write('state.json',{schemaVersion:1,runId:'selftest',tasks,events,capabilities:{F:{figmaDirect:true},R:{figmaDirect:true}}});
+ await write('state.json',{schemaVersion:1,runId:'selftest',scope:{figmaFrame:'Anonymous Frame',appRoute:'http://localhost:5173/demo',viewport:{width:360,height:818}},final:'VERIFIED_RECORDED_SCOPE',tasks,events,capabilities:{F:{figmaDirect:true},R:{figmaDirect:true}}});
  return m;
 }
 function check(result,status,code){assert.equal(result.report.status,status);assert.equal(result.p.status,status==='PARTIAL'?2:0,result.p.stderr);if(code)assert(result.report.blockers.some(x=>x.code===code),code);count++;}
@@ -58,5 +58,8 @@ try{
  m=await base();m.claims=[];check(await run(m),'PARTIAL','CLAIMS_EMPTY');
  m=await base();m.tests=[];check(await run(m),'PARTIAL','TESTS_EMPTY');
  m=await base();m.claims[0].appEvidenceId='source';check(await run(m),'PARTIAL','PROOF_SOURCE');
+ m=await base();m.environments[0].viewport={width:390,height:844,deviceScaleFactor:1};check(await run(m),'PARTIAL','VIEWPORT_MISMATCH');
+ m=await base();m.evidence.find(x=>x.id==='app').environmentId='fixture';check(await run(m),'PARTIAL','CLAIM_PROOF_ENV');
+ m=await base();const state2=JSON.parse(await fs.readFile(path.join(dir,'state.json'),'utf8'));state2.final='PENDING';await write('state.json',state2);check(await run(m),'PARTIAL','AGENT_FINAL_INCOMPLETE');
  console.log('PASS v6.1 provenance selftest: '+count+' synthetic scenarios');
 }finally{await fs.rm(dir,{recursive:true,force:true});}
