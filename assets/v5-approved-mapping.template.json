@@ -1,0 +1,12 @@
+{
+  "pairs": [
+    {
+      "figmaId": "FIGMA-CLOSE-HITAREA",
+      "domId": "DOM-00001",
+      "reviewStatus": "PENDING",
+      "reviewSource": "UNAVAILABLE",
+      "reviewer": "",
+      "evidence": "evidence/approved-close-mapping.png"
+    }
+  ]
+}

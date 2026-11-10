@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 5,
+  "scope": {"frame": "Exact Figma frame name", "viewport": {"width": 400, "height": 844, "deviceScaleFactor": 1}},
+  "review": {
+    "reviewerId": "reviewer-unique-identity",
+    "figmaAccess": "UNAVAILABLE",
+    "status": "PARTIAL",
+    "evidence": "evidence/second-pass-expanded-layers.png"
+  },
+  "items": [
+    {"id": "FIGMA-CLOSE-HITAREA"}
+  ]
+}
