@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "scope": {
+    "frame": "Replace with actual Figma frame and state",
+    "appRoute": "http://localhost:5173/example",
+    "viewport": {
+      "width": 360,
+      "height": 818,
+      "deviceScaleFactor": 1
+    },
+    "coverage": "PARTIAL",
+    "goal": "REAL_APP_VISUAL",
+    "excluded": [
+      "other screens and untested API flows"
+    ]
+  },
+  "environments": [
+    {
+      "id": "runtime",
+      "kind": "REAL_APP_RUNTIME",
+      "apiMode": "MOCKED",
+      "note": "Actual app route; APIs may be mocked"
+    },
+    {
+      "id": "fixture",
+      "kind": "ISOLATED_VUE_FIXTURE",
+      "apiMode": "NONE",
+      "note": "Separate Vue template/SCSS fixture"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "figma-frame",
+      "source": "FIGMA_VIEWER",
+      "path": ".design-qa/example/figma-frame.png",
+      "sha256": "REPLACE_WITH_REAL_SHA256"
+    },
+    {
+      "id": "real-app-layout",
+      "source": "APP_RUNTIME",
+      "environmentId": "runtime",
+      "path": ".design-qa/example/layout.json",
+      "sha256": "REPLACE_WITH_REAL_SHA256"
+    },
+    {
+      "id": "test-output",
+      "source": "TEST_RUN",
+      "path": ".design-qa/example/test-output.txt",
+      "sha256": "REPLACE_WITH_REAL_SHA256"
+    }
+  ],
+  "claims": [
+    {
+      "id": "button-height",
+      "kind": "GEOMETRY",
+      "environmentId": "runtime",
+      "expected": 50,
+      "actual": 50,
+      "tolerancePx": 1,
+      "reportedStatus": "PASS",
+      "figmaEvidenceId": "figma-frame",
+      "appEvidenceId": "real-app-layout"
+    }
+  ],
+  "tests": [
+    {
+      "id": "regression",
+      "status": "BLOCKED",
+      "category": "TEST_INFRASTRUCTURE",
+      "impact": "Describe unexecuted area",
+      "followUp": "Repair test runtime and rerun",
+      "evidenceIds": [
+        "test-output"
+      ]
+    }
+  ],
+  "baseline": {
+    "claim": "UNVERIFIED"
+  },
+  "agentRun": {
+    "statePath": ".design-qa/v6/state.json"
+  }
+}
