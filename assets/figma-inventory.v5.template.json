@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 5,
+  "kind": "FIGMA",
+  "scope": {"frame": "Exact Figma frame name", "viewport": {"width": 400, "height": 844, "deviceScaleFactor": 1}},
+  "coverage": {
+    "status": "PARTIAL",
+    "expandedBranches": [],
+    "evidence": "evidence/figma-expanded-layer-panel.png",
+    "notes": "Never change to COMPLETE until all in-scope branches and visible instances have been inspected."
+  },
+  "items": [
+    {
+      "id": "FIGMA-CLOSE-HITAREA",
+      "parentId": null,
+      "name": "Close button hit area",
+      "path": "Frame / Modal / Header / Close button",
+      "role": "button",
+      "text": "",
+      "source": "UNAVAILABLE",
+      "evidence": "evidence/close-selected-properties.png",
+      "expectedBox": {"width": 40, "height": 40},
+      "expectedCss": {},
+      "expectedContent": {},
+      "tolerancePx": 1
+    }
+  ],
+  "relations": [
+    {
+      "id": "NOTICE-TO-LIST",
+      "from": "FIGMA-NOTICE",
+      "to": "FIGMA-LIST",
+      "fromEdge": "bottom",
+      "toEdge": "top",
+      "expectedPx": 16,
+      "source": "UNAVAILABLE",
+      "evidence": "evidence/figma-distance-notice-list.png",
+      "tolerancePx": 1
+    }
+  ]
+}
