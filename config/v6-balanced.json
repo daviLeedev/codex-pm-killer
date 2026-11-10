@@ -62,5 +62,12 @@
   "context": {
     "requirePack": true,
     "maxPackBytes": 25000
+  },
+  "providerNeutral": {
+    "enabled": true,
+    "modelNamesAreSuggestions": true,
+    "capabilityPreflight": "scripts/host-preflight.mjs",
+    "fallbackOnNoSubagents": "SEQUENTIAL_PARTIAL",
+    "fallbackOnNoFigma": "FIGMA_ACCESS_BLOCKED"
   }
 }

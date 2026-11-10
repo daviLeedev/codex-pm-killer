@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "host": "custom",
+  "observedAt": "",
+  "capabilities": {
+    "filesystemRead": true,
+    "filesystemWrite": true,
+    "nodeProcess": true,
+    "terminal": true,
+    "appRuntimeBrowser": true,
+    "figmaViewerDirect": false,
+    "figmaViewerAuthenticated": false,
+    "subagents": false,
+    "secondDirectFigmaReviewer": false
+  },
+  "models": {
+    "main": "",
+    "figma": "",
+    "dom": "",
+    "difference": "",
+    "fixer": "",
+    "review": ""
+  },
+  "notes": "Copy to target app .design-qa and populate from observed capabilities. Do not commit private URLs/tokens."
+}

@@ -1,3 +1,5 @@
+> **v6.2 host-portability note:** This document's Codex and Sol/Luna/Astra examples describe the original adapter, not a requirement. MAIN/Figma/DOM/Difference/Fixer/Review are platform-neutral roles. See `references/provider-neutral-execution.md` and run `scripts/host-preflight.mjs` to determine which phases the current host can actually perform. The scheduler does not create agents in any host by itself.
+
 # v6: Balanced multi-agent Figma QA (on top of v5)
 
 ## Capabilities / what is and is not automated
