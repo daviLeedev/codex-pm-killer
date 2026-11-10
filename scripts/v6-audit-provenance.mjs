@@ -67,7 +67,11 @@ for(const c of m.claims||[]) {
  const env=environments.get(c.environmentId);
  if(!env){block('CLAIM_ENV',c.id+' has no runtime environment','Supply a measured environment');continue;}
  const appType=env.kind==='REAL_APP_RUNTIME'?'APP_RUNTIME':env.kind==='ISOLATED_VUE_FIXTURE'?'FIXTURE_RUNTIME':'SOURCE_REVIEW';
+ if(env.viewport&&scope.viewport&&(env.viewport.width!==scope.viewport.width||env.viewport.height!==scope.viewport.height||env.viewport.deviceScaleFactor!==scope.viewport.deviceScaleFactor))
+  block('VIEWPORT_MISMATCH',c.id+' viewport differs from recorded scope','Capture at the same width, height and device scale');
  let trusted=ref(c.appEvidenceId,appType,c.id);
+ const appProof=evidence.get(c.appEvidenceId);
+ if(appProof?.environmentId&&appProof.environmentId!==c.environmentId){block('CLAIM_PROOF_ENV',c.id+' references evidence from a different runtime','Use evidence from the measured environment');trusted=false;}
  if(c.kind!=='BEHAVIOR')trusted=ref(c.figmaEvidenceId,'FIGMA_VIEWER',c.id)&&trusted;
  if(scope.goal==='REAL_APP_VISUAL'&&env.kind!=='REAL_APP_RUNTIME')
   block('FIXTURE_NOT_REAL_APP',c.id+' was measured in '+env.kind,'Re-run the same assertions on the actual application route');
@@ -110,12 +114,15 @@ if(m.agentRun?.statePath) {
  try{
   const s=await parse(await artifact(m.agentRun.statePath));
   if(s.schemaVersion!==1||!s.runId||!Array.isArray(s.tasks))throw Error('Invalid orchestrator state.json');
+  if(s.scope?.figmaFrame!==scope.frame||s.scope?.appRoute!==scope.appRoute||s.scope?.viewport?.width!==scope.viewport.width||s.scope?.viewport?.height!==scope.viewport.height)
+   block('AGENT_SCOPE_MISMATCH','Orchestrator recorded a different frame, route or viewport','Re-run or select evidence for the exact audit scope');
+  if(s.final!=='VERIFIED_RECORDED_SCOPE')block('AGENT_FINAL_INCOMPLETE','Orchestrator has not passed its final gate','Run v6 gate rather than substituting report PASS');
   agents.runId=s.runId;
   const roles=['figma','dom','difference','fixer','review','gate'];
   const t=roles.map(id=>s.tasks.find(z=>z.id===id));
   agents.roles=t.map((r,i)=>({role:roles[i],actor:r?.actor??null,status:r?.status??'MISSING',model:r?.model??null,proofCount:r?.evidence?.length??0}));
   agents.independent=Boolean(t[0]?.actor&&t[4]?.actor&&t[0].actor!==t[4].actor&&s.capabilities?.[t[0].actor]?.figmaDirect===true&&s.capabilities?.[t[4].actor]?.figmaDirect===true);
-  const recorded=roles.every(role=>s.events?.some(ev=>ev.type==='ASSIGN'&&ev.task===role)&&s.events?.some(ev=>ev.type==='RECORD'&&ev.task===role&&ev.status==='DONE'));
+  const recorded=roles.every((role,i)=>s.events?.some(ev=>ev.type==='ASSIGN'&&ev.task===role&&ev.actor===t[i]?.actor)&&s.events?.some(ev=>ev.type==='RECORD'&&ev.task===role&&ev.actor===t[i]?.actor&&ev.status==='DONE'));
   const complete=t.every(z=>z?.status==='DONE'&&z.actor&&z.evidence?.length);
   for(const role of t.filter(Boolean))for(const ev of role.evidence||[]){
    try{if(digest(await fs.readFile(await artifact(ev.path)))!==ev.sha256)block('AGENT_PROOF_HASH',role.id+' evidence changed','Re-run the affected stage');}
