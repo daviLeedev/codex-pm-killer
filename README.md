@@ -2,11 +2,30 @@
 
 **View-only Figma browser → real DOM region mapping → strict visual/behavioral QA → reusable failure-pattern knowledge.**
 
-Use with Codex's *currently authenticated in-app browser*. **No Figma MCP, Figma API, Dev Mode subscription, or Figma plugin.**
+**Provider-neutral QA core:** runs under Codex, Claude Code, Gemini CLI or any capable terminal agent. The **host must supply real project file access, Node.js execution and an authenticated read-only Figma viewer** for direct design inspection. No Figma MCP/API/plugin/Dev Mode; unsupported capabilities are reported as BLOCKED, never invented.
 
 ## Version history / 패치노트
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
+
+### v6.2.0 — Provider-Neutral Agent Execution (2026-11-10)
+
+**Added**
+- `references/provider-neutral-execution.md`: Codex·Claude Code·Gemini CLI·기타 CLI 에이전트의 역할별 실행 계약과 환경별 폴백.
+- `config/host-capabilities.example.json` 및 `scripts/host-preflight.mjs`: 모델 이름이 아닌 실제 브라우저·파일·서브에이전트 권한으로 실행 가능 범위를 진단.
+- `tests/host-preflight-selftest.mjs`: 사용 가능한 도구, 브라우저 미접근, 서브에이전트 부재 등 시나리오 검증.
+
+**Changed**
+- 메인 스킬 설명에서 Codex 전용 브라우저를 필수 전제로 하지 않음. 예시 모델은 Codex 전용 기본값이며, 다른 플랫폼에서는 해당 플랫폼이 실제 지원하는 모델 ID를 사용.
+- 오케스트레이터와 v5/v6 검증 스크립트는 플랫폼과 무관한 Node.js 도구이며, 실제 에이전트 생성·모델 선택·브라우저 접근은 호스트 책임이라고 명시.
+
+**Validation**
+- `node tests/host-preflight-selftest.mjs` 및 기존 v4~v6.1 CI 테스트 실행.
+- `node scripts/check-release-notes.mjs`로 최신 VERSION과 패치노트 일치 확인.
+
+**Limitations**
+- 호스트 진단은 입력된 capabilities에 의존하며 권한·로그인 여부를 독립적으로 인증하지 못함.
+- 브라우저 접근이 없는 환경은 실제 Figma 속성 검사나 직접 독립 검수가 불가능하며, 공통 검사 스크립트만 실행 가능함.
 
 ### v6.1.0 — Audit Provenance & Failure Triage (2026-11-10)
 
@@ -74,7 +93,18 @@ Use with Codex's *currently authenticated in-app browser*. **No Figma MCP, Figma
 
 **버전 갱신 규칙:** 다음 버전마다 `VERSION` 값을 올리고, 이 섹션 맨 위에 `Added / Changed / Validation / Limitations` 항목과 해당 버전의 실질적인 변경을 작성합니다. 기존 노트는 삭제하지 않습니다. 사용자/고객사 정보나 Figma 캡처는 공개 README에 기록하지 않습니다.
 
-## Install in Codex
+## Install on any capable coding agent
+
+Clone the repository in a location readable by the agent. Node.js tools work independently of the LLM provider:
+
+```bash
+git clone https://github.com/daviLeedev/codex-pm-killer.git
+node codex-pm-killer/scripts/host-preflight.mjs --config codex-pm-killer/config/host-capabilities.example.json
+```
+
+Fill the capabilities JSON from **observed host permissions**, not assumptions. Preflight warns when Figma access or independent review is unavailable. Claude Code / Gemini CLI can execute the same skill instructions as a repository document, even if their skill discovery syntax differs. See [provider-neutral execution](references/provider-neutral-execution.md).
+
+### Codex-specific installation (optional)
 
 ```bash
 git clone https://github.com/daviLeedev/codex-pm-killer.git ~/.agents/skills/codex-pm-killer
@@ -84,7 +114,7 @@ git clone https://github.com/daviLeedev/codex-pm-killer.git ~/.agents/skills/cod
 
 Invoke in Codex: `$codex-pm-killer detail-fix: inspect the open view-only Figma tab, map each visual region to the real app DOM, measure, fix, independently re-audit, and record anonymized learning candidates.`
 
-**Prerequisite:** Current Codex browser must actually expose clicking/selecting Figma layers and reading the right Properties panel. Installing this skill does not grant browser permissions or access to another logged-in tab.
+**Prerequisite:** Whichever agent host you choose must be able to select Figma layers in an authenticated read-only viewer and read Properties for direct Figma inspection. Installing this skill does not grant browser access or reuse another tool's login.
 
 ## What is automated and what is not
 
@@ -142,3 +172,8 @@ node /path/to/codex-pm-killer/scripts/v6-context.mjs resume --workspace "$PWD"
 ```
 
 Validation: `node tests/v6-context-selftest.mjs`. **Context packs reduce supplied input, not necessarily total model cost**; rework rates and real usage must be measured in Codex. This is a local file-backed contract, not direct access to Codex's hidden context/compaction internals.
+
+
+## Cross-platform adapters (v6.2)
+
+The model and agent role names in older release notes are **historical defaults**, not restrictions on supported hosts. A host can execute the core scripts as long as it can access local files and Node.js; direct Figma fidelity additionally requires an authenticated viewer with usable input controls. The same evidence gate applies to Claude, Gemini and Codex. A failed capability preflight must not be misreported as a model-quality failure. See [`references/provider-neutral-execution.md`](references/provider-neutral-execution.md).
