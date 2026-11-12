@@ -19,3 +19,7 @@ jobs:
       - run: node scripts/check-release-notes.mjs
       - run: node tests/v6-audit-provenance-selftest.mjs
       - run: node tests/host-preflight-selftest.mjs
+      - run: node tests/v6.3-selftest.mjs
+      - run: node tests/v6.3-budget-selftest.mjs
+      - run: node --check benchmarks/v6.3/capture-runtime.mjs
+      - run: node --check benchmarks/v6.3/freeze-truth.mjs

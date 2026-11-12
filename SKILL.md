@@ -3,7 +3,7 @@ name: codex-pm-killer
 description: Inspect view-only Figma designs using a host-provided authenticated browser (Codex, Claude Code, Gemini CLI, or another capable coding agent) without Figma MCP/API, extract observable layout/typography/spacing values and layer hierarchy, implement them in the existing web app, and iteratively verify rendered UI with Playwright and documented evidence. Use for Figma-to-code, pixel-accuracy audits, UI reconstruction, and especially strict detail-fix after an initial rough UI has been implemented, when the user provides a Figma link or an already-open Figma browser tab.
 ---
 
-# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.2)
+# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.3)
 
 ## Host and model portability (v6.2)
 
@@ -198,3 +198,10 @@ Before publishing a new version or opening a release PR, update the root `VERSIO
 ## Cross-provider routing
 
 For Codex, Claude Code, Gemini CLI and other hosts, MAIN must use the host's **actual supported model IDs** and capability manifest rather than the historical Sol/Luna/Astra names. A vendor-native task tool or subagent facility is optional; never claim it is running when unavailable. The `v6-orchestrator.mjs` only records assignments, locks and proofs, it does not spawn agents. High-cost model use requires user approval under the configured budget policy, regardless of provider. Run `scripts/host-preflight.mjs` before dispatch.
+
+## v6.3 — Benchmark Reliability & Visual Fidelity
+
+For benchmarks, read `benchmarks/v6.3/README.md` and `references/v6.3-benchmark-protocol.md`. Freeze a single mobile Home Figma ground-truth inventory including all legacy assertion IDs and SHA-256 source proofs before experiments. Use direct viewer observations only; never invent a Figma reference or promote a screenshot estimate to measured truth. In production pass `--expected-sha256` to the evaluator.
+Capture actual local Vue DOM (with Playwright) and compare rendered width, height, spacing, typography, colors, text, icons, images and structure; unknown and unsupported properties remain NOT_EVALUABLE. Report MATCH / MISMATCH / NOT_EVALUABLE against the frozen denominator. A DOM icon's existence is not pixel contour equality.
+Separate Track I (implementation fidelity) from Track II (20 independently seeded defect mutations + at least 20 known-good controls). Do not leak the defect answer key to the implementation or fixer agent.
+For any user-approved API experiment, the external host must reserve a conservative maximum cost in `benchmarks/v6.3/budget-journal.mjs`, persist each complete raw response BEFORE parsing, settle with usage evidence, and stop on ambiguous/uncertain charges. The combined software reservation limit is $5 unless a new explicit authorization is implemented. The journal DOES NOT make API calls or guarantee provider billing.

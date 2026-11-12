@@ -1,0 +1,8 @@
+{
+  "status": "FROZEN_PARTIAL_CANDIDATES",
+  "viewport": {"width":375,"height":1069},
+  "layers": [
+    {"id":"L00","source":"UNVERIFIED","evidence":"private/figma/home-frame.png","evidenceSha256":null,
+      "checks":[{"id":"home-width","property":"width","expected":375,"tolerance":1,"severity":"P1"}]}
+  ]
+}

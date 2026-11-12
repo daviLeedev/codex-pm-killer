@@ -8,6 +8,26 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.3.0 — Benchmark Reliability & Visual Fidelity (2026-11-12)
+
+**Added**
+- `benchmarks/v6.3/evaluate.mjs`: 크기·실제 간격·색상·타이포그래피·문구·자식 수·아이콘·이미지 존재를 검사하고 미관측 값은 `NOT_EVALUABLE`로 분류.
+- `freeze-truth.mjs`와 `capture-runtime.mjs`: 기존 150개 assertion과 Figma 증거 SHA-256을 고정하고, 실제 Vue DOM의 박스·텍스트·스타일·스크린샷을 캡처.
+- `budget-journal.mjs`: $5 예약 한도, 유료 요청 ID 중복 차단, raw 응답 선저장, 미정산·과금 불명확 상태에서 추가 요청 차단.
+- Track I(구현 정확도) / Track II(오류 검출) 분리 프로토콜과 자체 변형 테스트.
+
+**Changed**
+- 기존 150개 검사의 원본 분모와 평가불가 항목을 보존하며, 검증 가능한 비율과 확인한 일치율을 분리 보고.
+- 모델이 작성한 PASS는 증거 없는 속성의 자동 통과를 의미하지 않음.
+
+**Validation**
+- 합성 오류 20종 모두 검출, 정상 대조 20종에서 오탐 0. API 예산·원문 보존 자체 테스트 20 assertions 및 기존 v4–v6 테스트.
+- 기존 Algolia 150건의 개수는 재현했지만 직접 Figma 속성 증거 및 해시가 부족해 원본 품질 평가 `PARTIAL` 판정 유지.
+
+**Limitations**
+- 실제 Figma에 자동 로그인하거나 Figma MCP/API를 호출하지 않음. 현장 95% 커버리지 및 아이콘 윤곽의 픽셀 완전 일치는 입증되지 않음.
+- API 자체 호출은 외부 러너의 역할. 소프트웨어 $5 예약은 공급자 청구 금액의 절대 보장이 아님.
+
 ### v6.2.0 — Provider-Neutral Agent Execution (2026-11-10)
 
 **Added**
@@ -177,3 +197,8 @@ Validation: `node tests/v6-context-selftest.mjs`. **Context packs reduce supplie
 ## Cross-platform adapters (v6.2)
 
 The model and agent role names in older release notes are **historical defaults**, not restrictions on supported hosts. A host can execute the core scripts as long as it can access local files and Node.js; direct Figma fidelity additionally requires an authenticated viewer with usable input controls. The same evidence gate applies to Claude, Gemini and Codex. A failed capability preflight must not be misreported as a model-quality failure. See [`references/provider-neutral-execution.md`](references/provider-neutral-execution.md).
+
+
+## v6.3 Benchmark tools
+
+Implementation: [`benchmarks/v6.3/README.md`](benchmarks/v6.3/README.md). Protocol: [`references/v6.3-benchmark-protocol.md`](references/v6.3-benchmark-protocol.md). All new tests are synthetic; real Algolia Figma measurements must be provided with direct, hashed evidence. The 150-item legacy benchmark denominator must not be changed to hide UNKNOWN assertions.
