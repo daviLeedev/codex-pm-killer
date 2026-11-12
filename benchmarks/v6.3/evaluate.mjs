@@ -18,23 +18,72 @@ function color(x) {
  return null;
 }
 const flat={width:'width',height:'height',x:'x',y:'y',left:'left',top:'top',right:'right',bottom:'bottom',padding_top:'padding_top',padding_right:'padding_right',padding_bottom:'padding_bottom',padding_left:'padding_left'};
-function actualValue(property, region, runtime) {
+function lineTracks(rects,axis){
+ // Rectangles on different flex/grid tracks must not be compared as adjacent siblings.
+ const cross=axis==='x'?'top':'left',end=axis==='x'?'bottom':'right';
+ const start=axis==='x'?'left':'top',finish=axis==='x'?'right':'bottom';
+ const valid=rects.filter(r=>r.inFlow===true && Number.isFinite(r[start]) && Number.isFinite(r[finish]) && Number.isFinite(r[cross]) && Number.isFinite(r[end]));
+ const tracks=[];
+ for(const r of valid){
+  const track=tracks.find(t=>r[cross]<t.end-.5&&r[end]>t.start+.5);
+  if(track){track.parts.push(r);track.start=Math.max(track.start,r[cross]);track.end=Math.min(track.end,r[end]);}
+  else tracks.push({start:r[cross],end:r[end],parts:[r]});
+ }
+ const gaps=[];
+ for(const t of tracks){
+  const sorted=t.parts.sort((a,b)=>a[start]-b[start]);
+  for(let i=1;i<sorted.length;i++)gaps.push(sorted[i][start]-sorted[i-1][finish]);
+ }
+ return gaps;
+}
+function renderedGap(region,check={}){
+ const css=region?.computedstyle??region?.css??{};
+ const rects=region?.childRects;
+ if(!Array.isArray(rects)||rects.length<2)return undefined;
+ const display=String(css.display||'').toLowerCase();
+ // Ignore flexDirection on a block: computed flexDirection defaults to 'row' for all elements.
+ if(display==='flex'||display==='inline-flex'){
+  const direction=String(css.flexDirection||'row');
+  return lineTracks(rects,direction.startsWith('row')?'x':'y');
+ }
+ if(display==='block'||display==='flow-root'||display==='list-item'){
+  const inFlow=rects.filter(r=>r.inFlow===true);
+  // An inline child, absolute item, or overlapping layout requires more specific evidence.
+  if(inFlow.some(r=>r.display && !['block','flow-root','list-item','flex','grid','table'].includes(r.display)))return undefined;
+  const valid=inFlow.filter(r=>Number.isFinite(r.top)&&Number.isFinite(r.bottom)).sort((a,b)=>a.top-b.top);
+  return valid.slice(1).map((r,i)=>r.top-valid[i].bottom);
+ }
+ if(display==='grid'||display==='inline-grid'){
+  // A 2D grid has independent row/column gaps: never guess which Figma 'gap' means.
+  const axis=check.axis;
+  if(!['row','column'].includes(axis))return undefined;
+  const horizontal=axis==='column';
+  const side=horizontal?'left':'top',end=horizontal?'right':'bottom';
+  const centers=rects.filter(r=>r.inFlow===true&&Number.isFinite(r[side])&&Number.isFinite(r[end]));
+  const unique=[];
+  for(const r of centers){
+   const existing=unique.find(v=>Math.abs(v.start-r[side])<.5);
+   if(existing)existing.finish=Math.max(existing.finish,r[end]);
+   else unique.push({start:r[side],finish:r[end]});
+  }
+  unique.sort((a,b)=>a.start-b.start);
+  return unique.slice(1).map((r,i)=>r.start-unique[i].finish);
+ }
+ // Unknown positioning model: no guessed gap.
+ return undefined;
+}
+function actualValue(property, region, runtime,check={}) {
  const css=region?.computedstyle??region?.css??{};
  if(property in flat){
   const suffix=property.startsWith('padding_') ? property.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()):property;
   return region?.[property]??region?.box?.[property]??css[suffix];
  }
- if(property==='gap'){
-  const rects=region?.childRects;
-  if(Array.isArray(region?.renderedGaps)&&region.renderedGaps.length)return region.renderedGaps;
-  if(!Array.isArray(rects)||rects.length<2)return undefined;
-  // Boundaries, not CSS gap. The producer must include only participating in-flow siblings.
-  const axis=css.flexDirection==='row'||css.flexDirection==='row-reverse'?'x':'y';
-  const rows=rects.filter(r=>r.inFlow===true&&finite(r[axis==='y'?'top':'left'])&&finite(r[axis==='y'?'bottom':'right']));
-  return rows.length>=2?rows.slice(1).map((r,i)=>r[axis==='y'?'top':'left']-rows[i][axis==='y'?'bottom':'right']):undefined;
- }
+ if(property==='gap')return renderedGap(region,check);
  if(property==='fill'||property==='background_color')return css.backgroundColor??region?.backgroundColor;
- if(property==='color')return css.color;
+ if(property==='color')return check.target==='placeholder'||region?.placeholderVisible===true?region?.placeholderColor:css.color;
+ if(property==='placeholder_color')return region?.placeholderColor;
+ if(property==='placeholder_text')return region?.placeholderText;
+ if(property==='asset_kind')return region?.assetKind;
  if(property==='font')return region?.actualRenderedFont??(region?.fontActualUseVerified?css.fontFamily:undefined);
  if(property==='size'||property==='font_size')return css.fontSize;
  if(property==='weight'||property==='font_weight')return css.fontWeight;
@@ -47,17 +96,17 @@ function actualValue(property, region, runtime) {
  if(property==='line_count')return region?.lineCount;
  if(property==='element_present')return region?.visible===true;
  if(property==='icon_present')return region?.svgPathCount>0 && region?.svgOnlyPlaceholder!==true;
- if(property==='image_loaded')return region?.imageLoaded===true && region?.imagePlaceholder!==true;
+ if(property==='image_loaded')return typeof region?.imageLoaded==='boolean'?region.imageLoaded===true&&region.imagePlaceholder!==true:undefined;
  if(property==='horizontal_overflow')return runtime?.horizontalOverflow;
  return undefined;
 }
 function match(property,expected,value,tolerance=0){
  if(value===undefined||value===null) return null;
- if(['fill','background_color','color'].includes(property)){const a=color(expected),b=color(value);return a&&b?a===b:null;}
+ if(['fill','background_color','color','placeholder_color'].includes(property)){const a=color(expected),b=color(value);return a&&b?a===b:null;}
  if(property==='padding') { const expectedVals=Array.isArray(expected)?expected:Array(4).fill(expected);return Array.isArray(value)&&value.length===4&&value.every((v,i)=>finite(n(v))&&finite(n(expectedVals[i]))&&Math.abs(n(v)-n(expectedVals[i]))<=tolerance); }
  if(property==='gap')return Array.isArray(value)&&value.length>0&&value.every(v=>finite(n(v))&&Math.abs(n(v)-n(expected))<=tolerance);
  if(['element_present','icon_present','image_loaded','horizontal_overflow'].includes(property))return typeof expected==='boolean'&&typeof value==='boolean' ? expected===value:null;
- if(['font','text'].includes(property))return norm(expected)===norm(value);
+ if(['font','text','placeholder_text','asset_kind'].includes(property))return norm(expected)===norm(value);
  if(['weight','font_weight'].includes(property)){
   const normalizeWeight=x=>({normal:'400',bold:'700'}[String(x).toLowerCase()]||String(x));
   return normalizeWeight(expected)===normalizeWeight(value);
@@ -113,9 +162,9 @@ export function evaluate(truth,runtime,{root='.',hashes=new Map(),synthetic=fals
    const region=regions[0];
    if(!region.visible&&c.property!=='element_present'){row.status='MISMATCH';row.reason='HIDDEN_REGION';rows.push(row);continue}
    if(['font','size','font_size','weight','font_weight','line_height','letter_spacing'].includes(c.property)&&region.requestedFontLoaded===false){row.reason='FONT_NOT_LOADED';rows.push(row);continue}
-   const actual=actualValue(c.property,region,runtime);row.actual=actual??null;
+   const actual=actualValue(c.property,region,runtime,c);row.actual=actual??null;
    const verdict=match(c.property,c.expected,actual,c.tolerance??c.tolerance_css_px??0);
-   row.status=verdict===null?'NOT_EVALUABLE':verdict?'MATCH':'MISMATCH';row.reason=verdict===null?'UNSUPPORTED_OR_NOT_OBSERVED':null;
+   row.status=verdict===null?'NOT_EVALUABLE':verdict?'MATCH':'MISMATCH';row.reason=verdict===null?(c.property==='gap'?'GAP_AXIS_OR_LAYOUT_UNRESOLVED':'UNSUPPORTED_OR_NOT_OBSERVED'):null;
    rows.push(row);
   }
  }

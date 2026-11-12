@@ -26,23 +26,32 @@ try{
    const nodes=[...document.querySelectorAll(entry.selector)];
    if(nodes.length!==1){mapped.push({id:entry.id,visible:false,matchCount:nodes.length});continue}
    const el=nodes[0],computed=getComputedStyle(el),box=r(el);
-   const childRects=[...el.children].map(child=>({ ...r(child),inFlow:!['absolute','fixed'].includes(getComputedStyle(child).position)}));
+   const childRects=[...el.children].map(child=>{const cs=getComputedStyle(child);return {...r(child),inFlow:!['absolute','fixed','sticky'].includes(cs.position)&&cs.display!=='none',display:cs.display};});
    const svg=el.matches('svg')?el:el.querySelector('svg');
    const pathCount=svg?svg.querySelectorAll('path,polygon,circle,ellipse,line,polyline').length:0;
    const imgs=el.matches('img')?[el]:[...el.querySelectorAll('img')];
-   const imageLoaded=imgs.length>0&&imgs.every(x=>x.complete&&x.naturalWidth>0);
+   const imageLoaded=imgs.length>0?imgs.every(x=>x.complete&&x.naturalWidth>0):null;
    const imagePlaceholder=imgs.some(x=>(x.getAttribute('data-placeholder')==='true'||/placeholder|fallback/i.test(x.src)));
+   const sources=imgs.map(x=>x.currentSrc||x.src);
+   const raster=sources.some(src=>/\.(?:png|jpe?g|webp|avif)(?:[?#]|$)/i.test(src)||/^data:image\/(?:png|jpe?g|webp|avif);/i.test(src));
+   const cssBg=computed.backgroundImage||'';
+   const bgRaster=/\.(?:png|jpe?g|webp|avif)(?:[?#]|$)/i.test(cssBg);
+   const assetKind=imagePlaceholder?'placeholder':raster||bgRaster?'raster_photo':(svg?'vector':imgs.length?'other_image':'none');
+   const isInput=el.matches('input,textarea'),inputValue=isInput?(el.value||''):null;
+   const placeholderText=isInput?(el.placeholder||''):null;
+   const placeholderColor=isInput&&placeholderText?getComputedStyle(el,'::placeholder').color:null;
+   const displayedText=isInput?(inputValue||placeholderText):el.textContent||'';
    let lineCount;
    if(el.textContent?.trim()){
     const range=document.createRange();range.selectNodeContents(el);
     const tops=[...range.getClientRects()].filter(x=>x.width>0&&x.height>0).map(x=>Math.round(x.top*2)/2);
     lineCount=new Set(tops).size;
    }
-   const keys=['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','backgroundColor','color','borderRadius','flexDirection','display','gap','position','opacity','boxShadow','borderColor'];
+   const keys=['gridTemplateColumns','gridTemplateRows','flexWrap','fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','backgroundColor','color','borderRadius','flexDirection','display','gap','position','opacity','boxShadow','borderColor'];
    const computedstyle=Object.fromEntries(keys.map(k=>[k,computed[k]]));
    for(const side of ['Top','Right','Bottom','Left'])computedstyle['padding'+side]=computed['padding'+side];
    mapped.push({id:entry.id,selector:entry.selector,...box,width:box.width,height:box.height,visible:computed.visibility!=='hidden'&&computed.display!=='none'&&box.width>0&&box.height>0,
-    text:(el.textContent||'').trim().replace(/\s+/g,' '),childcount:el.children.length,computedstyle,
+    text:(displayedText||'').trim().replace(/\s+/g,' '),isInput,placeholderVisible:!!(isInput&&!inputValue&&placeholderText),inputValue,placeholderText,placeholderColor,assetKind,childcount:el.children.length,computedstyle,
     padding_top:numericCSS(computed,'paddingTop'),padding_right:numericCSS(computed,'paddingRight'),padding_bottom:numericCSS(computed,'paddingBottom'),padding_left:numericCSS(computed,'paddingLeft'),
     childRects,lineCount,svgPathCount:pathCount,svgOnlyPlaceholder:svg&&pathCount===0,imageLoaded,imagePlaceholder,
     requestedFontLoaded:document.fonts.check(computed.font),actualRenderedFont:null,fontActualUseVerified:false});

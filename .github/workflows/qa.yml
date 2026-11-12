@@ -23,3 +23,6 @@ jobs:
       - run: node tests/v6.3-budget-selftest.mjs
       - run: node --check benchmarks/v6.3/capture-runtime.mjs
       - run: node --check benchmarks/v6.3/freeze-truth.mjs
+      - run: node tests/v6.3.1-selftest.mjs
+      - run: node tests/v6.3.1-policy-selftest.mjs
+      - run: node tests/v6.3.1-history-selftest.mjs
