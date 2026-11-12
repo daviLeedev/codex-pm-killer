@@ -25,6 +25,7 @@ try{
  let r=await run();assert.equal(r.code,0);assert.equal(r.data.status,'READY_WITH_SUBSTITUTES');count++;
  r=await run({gold:{...input.gold,unknown:[{id:'x'}]}});assert.equal(r.code,2);assert(r.data.blockers.some(x=>x.code==='GOLD_NOT_VERIFIED'));count++;
  r=await run({mapping:{regions:[{id:'home',selector:'#home'}]}});assert.equal(r.code,2);assert(r.data.blockers.some(x=>x.code==='REQUIRED_REGION_NOT_MAPPED'));count++;
+ r=await run({gold:{...input.gold,requiredRegionIds:[]}});assert.equal(r.code,2);assert(r.data.blockers.some(x=>x.code==='REQUIRED_REGION_INVENTORY_MISSING'));count++;
  r=await run({approval:{...input.approval,approvedMaxUsd:10}});assert.equal(r.code,2);assert(r.data.blockers.some(x=>x.code==='BUDGET_NOT_APPROVED'));count++;
  r=await run({browser:{...input.browser,stableTwoCaptures:false}});assert.equal(r.code,2);assert(r.data.blockers.some(x=>x.code==='BROWSER_SMOKE_NOT_READY'));count++;
  r=await run({assets:{...input.assets,status:'PARTIAL'}});assert.equal(r.code,2);assert(r.data.blockers.some(x=>x.code==='ASSET_PACK_NOT_LOCKED'));count++;
