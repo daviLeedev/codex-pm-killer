@@ -26,3 +26,19 @@ jobs:
       - run: node tests/v6.3.1-selftest.mjs
       - run: node tests/v6.3.1-policy-selftest.mjs
       - run: node tests/v6.3.1-history-selftest.mjs
+      - run: node tests/v6.3.2-selftest.mjs
+      - run: node tests/v6.3.2-readiness-selftest.mjs
+  chromium-browser-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright for actual headless Chromium checks
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run isolated DOM browser mutation tests (not Figma E2E)
+        run: node tests/v6.3.2-browser-selftest.mjs
+

@@ -212,3 +212,13 @@ For any user-approved API experiment, the external host must reserve a conservat
 Read `references/v6.3.1-patch-protocol.md` before rerunning an Algolia-style benchmark. Use the patched `benchmarks/v6.3/capture-runtime.mjs` and `evaluate.mjs` for actual DOM collection. Do not compare block-layout gaps using computed flex direction; Grid row/column measurements require explicit `axis` in the assertion. Prefer `placeholder_text` and `placeholder_color` for search inputs. For `asset_kind`, class agreement does not establish true asset fidelity; separately compare images/SVGs when genuine reference assets exist.
 
 Run `benchmarks/v6.3/verify-approved-budget.mjs` against the private approved-budget declaration and execution ledger; a run with a higher unapproved host cap is PARTIAL even if spent less than $5. Never upload raw response files or screenshots to the public repository. Use `benchmarks/history/` only for anonymized, reviewed aggregate statistics, and never rewrite old frozen scores after updating evaluators.
+
+## v6.3.2 Benchmark Readiness (mandatory before paid runs)
+
+Read `references/v6.3.2-readiness.md`. For Figma mobile Home benchmarks: inventory all required visible regions, preserve actual direct Figma evidence and SHA, and run `benchmarks/v6.3/readiness-gate.mjs` before any paid API requests. Missing/hidden/duplicated **required** regions block full verification even when overall property evaluability exceeds 95%.
+
+When Figma image downloads are unavailable, prepare a private, licensed **shared substitute asset pack** and validate it with `benchmarks/v6.3/asset-pack.mjs`. All A/B/C variants must use the same frozen image bytes, image IDs and placement requirements; never claim substitutes match the original photo pixels. Keep layout/asset-integration results distinct from original-visual-fidelity results.
+
+Use Chromium CDP glyph-level font evidence when available; unknown/mixed fonts are not PASS. Use `capture-runtime.mjs --url localhost` for actual Vue app verification, not `--fixture-html`. Preserve prior v6.3 scores in benchmark history and record any fresh rerun under a new run ID.
+
+QA is vendor-neutral. A CLI check cannot authenticate Figma origin, user budget approval or agent identity. Do not begin a paid benchmark if required preflight evidence is BLOCKED.
