@@ -53,14 +53,12 @@ The previously supplied `actual-evaluation-frozen.json` has exactly 150 assertio
 
 See `references/v6.3-benchmark-protocol.md` for Track I implementation fidelity vs Track II independent mutation QA. All A/B/C experiments share a pre-frozen ground truth, same initial app conditions and combined approved $5 budget. A/B same model/config; C must state whether real subagents spawned or host mediated sequential contexts. `n=1` is exploratory only.
 
+## v6.3.2 readiness & asset pack
 
-## v6.3.1 corrections
+- `asset-pack.mjs`: freeze and validate a **private** common substitute image pack (SHA-256, actual image dimensions, asset IDs, licensing, original/substitute distinction). The template in `assets/v6.3.2-asset-pack.template.json` is intentionally incomplete until real files are supplied.
+- `evaluate.mjs`: required region missing/hidden/duplicated now blocks VERIFIED even when other assertions exceed 95%. Font verification requires actual-use evidence, and a local HTML fixture can no longer be reported as real app capture.
+- `capture-runtime.mjs`: bounded image readiness, actual Chrome CDP glyph fonts, sticky in-flow rects, asset IDs, and optional repeat/stability check. **No Figma access or API calls**.
+- `readiness-gate.mjs`: check recorded Gold lock, shared asset lock, mapping, original $5 approval and real browser smoke **before** paid work. A passed gate never proves screenshots are authentic; `READY_WITH_SUBSTITUTES` does not imply original visual match.
+- `tests/v6.3.2-browser-selftest.mjs`: browser-based controlled fixtures and error mutations. Re-capture real Vue screens separately for genuine benchmark results.
 
-- Local input/textarea capture now records `placeholderText`, `placeholderColor`, `placeholderVisible`; visible input text uses entered value or placeholder. For design placeholder text use `placeholder_text`, for its color `placeholder_color`, or `color` when placeholderVisible is explicitly captured.
-- Rendered `gap` is measured from actual child rectangles and layout type. Block/flow-root uses vertical edges (ignoring computed default flexDirection); flex follows its real direction and track; grid needs assertion `axis: 'row' | 'column'`. Ambiguous axes return `NOT_EVALUABLE` instead of fake matches.
-- Optional `asset_kind: 'raster_photo' | 'vector' | 'placeholder' | 'other_image' | 'none'` check detects broad substitutions; identical class does not mean pixel-perfect image fidelity.
-- An element without a measurable HTML image no longer automatically reports a failed `image_loaded` assertion; it is unverified.
-- For the originally approved combined A/B/C budget, run `verify-approved-budget.mjs` with a **private** approval declaration and the v6.3 journal. Its authorization reference is not independently authenticated by the script.
-- Run-specific summary records live in `benchmarks/history/`. Never put private Figma captures or API raw response into this public repository.
-
-**Do not silently reclassify the Nov 12 v6.3 frozen A/B/C scores.** v6.3.1 requires a new capture and a new result ID for a defensible updated measurement. See `references/v6.3.1-patch-protocol.md`.
+See [v6.3.2 protocol](../../references/v6.3.2-readiness.md). Never rewrite the previous v6.3 A/B/C historical result from these synthetic tests.
