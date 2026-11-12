@@ -22,7 +22,7 @@ for(const layer of truth.layers??[])for(let i=0;i<(layer.checks||[]).length;i++)
 }
 const legacy=arg('legacy-count');if(legacy&&ids.size!==Number(legacy))problems.push('LEGACY_COUNT_CHANGED wanted '+legacy+' actual '+ids.size);
 if(!ids.size)problems.push('NO_ASSERTIONS');
-const status=problems.length||unknown.length||truth.status!=='FROZEN_VERIFIED'?'PARTIAL':'FROZEN_RECORDED_EVIDENCE';
-const result={schemaVersion:1,status,truthSha256:sha(bytes),truthPath:expected,assertions:ids.size,properties,unknown,problems,warning:'A file hash verifies bytes and scope, not whether the Figma values were accurately measured.'};
+const requiredIds=(truth.layers??[]).filter(l=>l.required!==false).map(l=>l.id);if(new Set(requiredIds).size!==requiredIds.length)problems.push('DUPLICATE_REQUIRED_REGION');\nconst status=problems.length||unknown.length||truth.status!=='FROZEN_VERIFIED'?'PARTIAL':'FROZEN_RECORDED_EVIDENCE';
+const requiredRegionIds=requiredIds;\nconst result={schemaVersion:1,status,truthSha256:sha(bytes),truthPath:expected,assertions:ids.size,requiredRegionIds,properties,unknown,problems,warning:'A file hash verifies bytes and scope, not whether the Figma values were accurately measured.'};
 await fs.mkdir(path.dirname(path.resolve(out)),{recursive:true});await fs.writeFile(out,JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify({status,assertions:ids.size,unknown:unknown.length,problems}));if(status!=='FROZEN_RECORDED_EVIDENCE')process.exitCode=2;
