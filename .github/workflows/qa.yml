@@ -29,7 +29,7 @@ jobs:
       - run: node tests/v6.3.2-selftest.mjs
       - run: node tests/v6.3.2-readiness-selftest.mjs
   chromium-browser-regression:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
