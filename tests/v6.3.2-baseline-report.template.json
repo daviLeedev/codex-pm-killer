@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "status": "NOT_RUN",
+  "realBrowser": false,
+  "stableTwoCaptures": false,
+  "fontEvidenceConfirmed": 0,
+  "notes": "This is a template, not evidence. Record measured browser smoke results and associated private files."
+}
