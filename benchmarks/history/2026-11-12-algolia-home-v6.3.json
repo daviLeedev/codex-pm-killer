@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "runId": "algolia-home-2026-11-12-v63",
+  "date": "2026-11-12",
+  "skillVersion": "6.3.0",
+  "testedCommit": "8d44fb8bf8e2965fd6aac6e00b3de3318f666da4",
+  "scope": "public mobile ecommerce Home single-frame demonstration",
+  "assertions": 150,
+  "resultStatus": "EXPLORATORY",
+  "modelSetup": "gpt-6.1-sol, reasoning low; C host-mediated sequential roles (not autonomous subagents)",
+  "results": {
+    "A": {
+      "match": 113,
+      "mismatch": 16,
+      "notEvaluable": 21,
+      "estimatedUsd": 0.4675355
+    },
+    "B": {
+      "match": 133,
+      "mismatch": 11,
+      "notEvaluable": 6,
+      "estimatedUsd": 0.583548
+    },
+    "C": {
+      "match": 135,
+      "mismatch": 9,
+      "notEvaluable": 6,
+      "estimatedUsd": 1.3814105
+    }
+  },
+  "evidenceBundleSha256": "17484b421ca5325bb80cd3cc739f7b6a41e48c3d4d8f6e86a3a78abaff342c2b",
+  "evidenceStorage": "PRIVATE_NOT_PUBLISHED",
+  "limitations": [
+    "One run per group; no statistical inference",
+    "Known block/flex gap axis and placeholder capture errors; published frozen scores not reclassified",
+    "Missing image fidelity and font equivalence",
+    "User-requested five-dollar ceiling diverged from host ten-dollar approved configuration; actual estimated usage below five"
+  ],
+  "reviewStatus": "ASSISTANT_REVIEW_OF_USER_SUPPLIED_REPORT_NOT_LIVE_FIGMA_ATTESTATION"
+}
