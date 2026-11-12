@@ -23,10 +23,10 @@ try{
  ];
  const regions=types.map(([prop,expected,good])=>({
   id:prop,width:100,height:50,x:0,y:0,visible:true,padding_top:8,padding_bottom:8,
-  renderedGaps:prop==='gap'?good:undefined,actualRenderedFont:prop==='font'?good:undefined,
+  renderedGaps:undefined,childRects:prop==='gap'?[{left:0,right:40,top:0,bottom:20,inFlow:true,display:'block'},{left:40+good[0],right:80+good[0],top:0,bottom:20,inFlow:true,display:'block'},{left:80+good[0]+good[1],right:120+good[0]+good[1],top:0,bottom:20,inFlow:true,display:'block'}]:undefined,actualRenderedFont:prop==='font'?good:undefined,
   fontActualUseVerified:true,requestedFontLoaded:true,svgPathCount:prop==='icon_present'?1:undefined,
   imageLoaded:prop==='image_loaded'?true:undefined,childcount:prop==='child_count'?good:undefined,
-  text:prop==='text'?good:'',computedstyle:{fontFamily:'Inter',fontWeight:prop==='weight'?good:'600',fontSize:prop==='size'?good:'16px',lineHeight:prop==='line_height'?good:'24px',letterSpacing:prop==='letter_spacing'?good:'0px',backgroundColor:prop==='fill'?good:'#fff',color:prop==='color'?good:'#121212',borderRadius:prop==='radius'?good:'8px'},
+  text:prop==='text'?good:'',computedstyle:{display:prop==='gap'?'flex':'block',flexDirection:'row',fontFamily:'Inter',fontWeight:prop==='weight'?good:'600',fontSize:prop==='size'?good:'16px',lineHeight:prop==='line_height'?good:'24px',letterSpacing:prop==='letter_spacing'?good:'0px',backgroundColor:prop==='fill'?good:'#fff',color:prop==='color'?good:'#121212',borderRadius:prop==='radius'?good:'8px'},
  }));
  const truth={status:'FROZEN_VERIFIED',viewport:{width:375,height:1069},layers:types.map(([property,expected])=>({id:property,source:'SYNTHETIC_TEST',evidence:evPath,evidenceSha256:evHash,checks:[{id:property,property,expected,tolerance:0,severity:['icon_present','image_loaded'].includes(property)?'P0':'P1'}]}))};
  const base={viewport:truth.viewport,coverageComplete:true,errors:[],blockedExternalRequests:[],regions,horizontalOverflow:false};
@@ -38,7 +38,7 @@ try{
  for(const [property,,good,bad] of types){
   const modified=structuredClone(base);const region=modified.regions.find(x=>x.id===property);
   if(property==='width'||property==='height'||property==='x'||property==='y'||property.startsWith('padding_'))region[property]=bad;
-  else if(property==='gap')region.renderedGaps=bad;
+  else if(property==='gap'){region.childRects[1].left=40+bad[0];region.childRects[1].right=80+bad[0];region.childRects[2].left=80+bad[0]+bad[1];region.childRects[2].right=120+bad[0]+bad[1];}
   else if(property==='font')region.actualRenderedFont=bad;
   else if(property==='weight')region.computedstyle.fontWeight=bad;
   else if(property==='size')region.computedstyle.fontSize=bad;
