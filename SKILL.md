@@ -3,7 +3,7 @@ name: codex-pm-killer
 description: Inspect view-only Figma designs using a host-provided authenticated browser (Codex, Claude Code, Gemini CLI, or another capable coding agent) without Figma MCP/API, extract observable layout/typography/spacing values and layer hierarchy, implement them in the existing web app, and iteratively verify rendered UI with Playwright and documented evidence. Use for Figma-to-code, pixel-accuracy audits, UI reconstruction, and especially strict detail-fix after an initial rough UI has been implemented, when the user provides a Figma link or an already-open Figma browser tab.
 ---
 
-# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.3)
+# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.3.1)
 
 ## Host and model portability (v6.2)
 
@@ -205,3 +205,10 @@ For benchmarks, read `benchmarks/v6.3/README.md` and `references/v6.3-benchmark-
 Capture actual local Vue DOM (with Playwright) and compare rendered width, height, spacing, typography, colors, text, icons, images and structure; unknown and unsupported properties remain NOT_EVALUABLE. Report MATCH / MISMATCH / NOT_EVALUABLE against the frozen denominator. A DOM icon's existence is not pixel contour equality.
 Separate Track I (implementation fidelity) from Track II (20 independently seeded defect mutations + at least 20 known-good controls). Do not leak the defect answer key to the implementation or fixer agent.
 For any user-approved API experiment, the external host must reserve a conservative maximum cost in `benchmarks/v6.3/budget-journal.mjs`, persist each complete raw response BEFORE parsing, settle with usage evidence, and stop on ambiguous/uncertain charges. The combined software reservation limit is $5 unless a new explicit authorization is implemented. The journal DOES NOT make API calls or guarantee provider billing.
+
+
+## v6.3.1: evaluator reliability, fixed budget and benchmark history
+
+Read `references/v6.3.1-patch-protocol.md` before rerunning an Algolia-style benchmark. Use the patched `benchmarks/v6.3/capture-runtime.mjs` and `evaluate.mjs` for actual DOM collection. Do not compare block-layout gaps using computed flex direction; Grid row/column measurements require explicit `axis` in the assertion. Prefer `placeholder_text` and `placeholder_color` for search inputs. For `asset_kind`, class agreement does not establish true asset fidelity; separately compare images/SVGs when genuine reference assets exist.
+
+Run `benchmarks/v6.3/verify-approved-budget.mjs` against the private approved-budget declaration and execution ledger; a run with a higher unapproved host cap is PARTIAL even if spent less than $5. Never upload raw response files or screenshots to the public repository. Use `benchmarks/history/` only for anonymized, reviewed aggregate statistics, and never rewrite old frozen scores after updating evaluators.

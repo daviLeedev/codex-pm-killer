@@ -8,6 +8,27 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.3.1 — Benchmark Evaluation Fixes & History (2026-11-12)
+
+**Added**
+- 입력 placeholder의 실제 표시 문구와 `::placeholder` 색상 수집 및 `placeholder_text`, `placeholder_color` 비교.
+- `asset_kind`를 통한 사진·벡터·플레이스홀더 유형 구분(정확한 이미지 픽셀 동일성을 의미하지 않음).
+- 별도 승인 $5 한도와 실행 원장의 불일치를 잡는 `verify-approved-budget.mjs`.
+- `benchmarks/history/`에 비식별화된 Algolia v6.3 실험 집계·증거 ZIP SHA-256·남은 검증 한계를 보존.
+
+**Changed**
+- `display:block`에서 무관한 기본 `flexDirection:row`를 사용하지 않도록 실제 렌더링 간격 축을 수정. Flex는 방향에 맞춰 계산하고, Grid는 row/column을 명시하지 않으면 추측하지 않음.
+- 과거 동결된 A/B/C 점수는 재평가 없이 수정하지 않음. 향후 새 캡처로 재측정한 결과는 새 실행 ID로 기록.
+
+**Validation**
+- 기존 20개 합성 오류 주입 테스트 유지, v6.3.1 새 속성·축 테스트 17건, 예산 승인 테스트 6건, 공개 이력 검증 테스트 5건.
+- GitHub Actions에서 v4~v6.3 기존 테스트와 이번 테스트를 함께 실행.
+
+**Limitations**
+- 실제 Figma 원본과 새 앱을 대상으로 v6.3.1을 재채점하지 않았으므로 95% 신뢰 가능한 평가 가능률 달성은 미확정.
+- 실시간 Playwright 수집에는 실행 프로젝트의 브라우저 도구가 필요하며, 자산 유형 일치는 정확한 사진·SVG 윤곽 일치가 아님.
+- API 예산 정책 검사는 로컬 신고값의 일관성만 확인하며 승인 진위와 외부 청구를 보증하지 않음.
+
 ### v6.3.0 — Benchmark Reliability & Visual Fidelity (2026-11-12)
 
 **Added**
@@ -202,3 +223,8 @@ The model and agent role names in older release notes are **historical defaults*
 ## v6.3 Benchmark tools
 
 Implementation: [`benchmarks/v6.3/README.md`](benchmarks/v6.3/README.md). Protocol: [`references/v6.3-benchmark-protocol.md`](references/v6.3-benchmark-protocol.md). All new tests are synthetic; real Algolia Figma measurements must be provided with direct, hashed evidence. The 150-item legacy benchmark denominator must not be changed to hide UNKNOWN assertions.
+
+
+## Benchmark history and evidence retention (v6.3.1)
+
+Full Figma captures, source ZIPs, API raw output, browser sessions and screenshots must remain private. Only a redacted summary of completed runs with frozen count, actual model setup, cost estimates, known limitations and a private bundle hash can go to [benchmarks/history](benchmarks/history/README.md). Every release gets a README **patch note**, but only actual completed benchmark runs get a separate history entry. Never count synthetic fixture tests as real Figma QA wins. Historical v6.3 scores are frozen; correcting an evaluator requires a separately identified re-evaluation using actual available evidence.

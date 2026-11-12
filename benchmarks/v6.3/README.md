@@ -52,3 +52,15 @@ The previously supplied `actual-evaluation-frozen.json` has exactly 150 assertio
 ## Benchmark policy
 
 See `references/v6.3-benchmark-protocol.md` for Track I implementation fidelity vs Track II independent mutation QA. All A/B/C experiments share a pre-frozen ground truth, same initial app conditions and combined approved $5 budget. A/B same model/config; C must state whether real subagents spawned or host mediated sequential contexts. `n=1` is exploratory only.
+
+
+## v6.3.1 corrections
+
+- Local input/textarea capture now records `placeholderText`, `placeholderColor`, `placeholderVisible`; visible input text uses entered value or placeholder. For design placeholder text use `placeholder_text`, for its color `placeholder_color`, or `color` when placeholderVisible is explicitly captured.
+- Rendered `gap` is measured from actual child rectangles and layout type. Block/flow-root uses vertical edges (ignoring computed default flexDirection); flex follows its real direction and track; grid needs assertion `axis: 'row' | 'column'`. Ambiguous axes return `NOT_EVALUABLE` instead of fake matches.
+- Optional `asset_kind: 'raster_photo' | 'vector' | 'placeholder' | 'other_image' | 'none'` check detects broad substitutions; identical class does not mean pixel-perfect image fidelity.
+- An element without a measurable HTML image no longer automatically reports a failed `image_loaded` assertion; it is unverified.
+- For the originally approved combined A/B/C budget, run `verify-approved-budget.mjs` with a **private** approval declaration and the v6.3 journal. Its authorization reference is not independently authenticated by the script.
+- Run-specific summary records live in `benchmarks/history/`. Never put private Figma captures or API raw response into this public repository.
+
+**Do not silently reclassify the Nov 12 v6.3 frozen A/B/C scores.** v6.3.1 requires a new capture and a new result ID for a defensible updated measurement. See `references/v6.3.1-patch-protocol.md`.
