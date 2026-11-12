@@ -12,7 +12,8 @@ if(g.status!=='FROZEN_RECORDED_EVIDENCE'||g.unknown?.length||g.problems?.length)
 if(g.assertions!==150)b('GOLD_COUNT_MISMATCH','Expected frozen 150 assertions for Algolia legacy benchmark');
 if(a.status!=='READY'||!a.packId||!a.manifestSha256||a.issues?.length)b('ASSET_PACK_NOT_LOCKED','Verify all shared assets and hashes before task distribution');
 if(!Array.isArray(m.regions)||m.regions.length===0)b('MAPPING_MISSING','Provide Figma-ID → DOM selector mappings');
-if(!Array.isArray(g.requiredRegionIds)||!g.requiredRegionIds.length)b('REQUIRED_REGION_INVENTORY_MISSING','Gold lock must include complete required region IDs');\nconst ids=new Set((m.regions??[]).map(z=>z.id));
+if(!Array.isArray(g.requiredRegionIds)||!g.requiredRegionIds.length)b('REQUIRED_REGION_INVENTORY_MISSING','Gold lock must include complete required region IDs');
+const ids=new Set((m.regions??[]).map(z=>z.id));
 for(const id of g.requiredRegionIds??[])if(!ids.has(id))b('REQUIRED_REGION_NOT_MAPPED',id);
 if(u.approvedMaxUsd!==5||u.currency!=='USD'||u.scope!=='ALL_AB_C'||u.approvedBy!=='USER_EXPLICIT'||!u.evidenceId)b('BUDGET_NOT_APPROVED','User-approved combined A/B/C cap must be $5 with private evidence');
 if(r.status!=='PASS'||r.realBrowser!==true||r.stableTwoCaptures!==true)b('BROWSER_SMOKE_NOT_READY','Actual Playwright Chromium smoke test and repeat capture required');
