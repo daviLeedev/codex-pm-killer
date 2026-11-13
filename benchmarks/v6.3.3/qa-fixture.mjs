@@ -27,13 +27,23 @@ const goldIds=new Set(goldChecks.map(c=>c.id));
 if(gold.status!=='FROZEN_VERIFIED'||goldChecks.length!==150||goldIds.size!==150)throw Error('UNVERIFIED_OR_CHANGED_150_ASSERTION_GOLD');
 if(plan.schemaVersion!==1||plan.goldSha256!==sha)throw Error('PRIVATE_MUTATION_PLAN_MUST_REFERENCE_FROZEN_GOLD_HASH');
 if(!Array.isArray(plan.mutations)||plan.mutations.length!==20||!Array.isArray(plan.controlIds)||plan.controlIds.length!==20)throw Error('REQUIRE_EXACTLY_20_MUTATIONS_AND_20_CONTROLS');
+const checksById=new Map(goldChecks.map(c=>[c.id,c]));
+const properties={
+ geometry:new Set(['width','height','x','y','left','top','right','bottom']),
+ spacing:new Set(['gap','padding','padding_top','padding_bottom','padding_left','padding_right']),
+ typography:new Set(['font','font_size','size','weight','font_weight','line_height','letter_spacing','line_count']),
+ color:new Set(['color','fill','background_color','placeholder_color']),
+ asset:new Set(['asset_kind','asset_pack_id','icon_present','image_loaded','object_fit']),
+ structure:new Set(['element_present','child_count','horizontal_overflow']),
+ text:new Set(['text','placeholder_text'])
+};
 const mutantIds=new Set(),controlIds=new Set(plan.controlIds);
 if(controlIds.size!==20)throw Error('DUPLICATE_CONTROL_ID');
 const categories=new Set(),fileEdits=new Map(),signatures=new Set(),safeFile=/^src\/[a-zA-Z0-9_./-]+\.(?:vue|css|scss|ts|tsx)$/;
 for(const m of plan.mutations){
  if(!m||typeof m!=='object'||typeof m.assertionId!=='string'||!goldIds.has(m.assertionId)||mutantIds.has(m.assertionId))throw Error('INVALID_OR_DUPLICATE_MUTATION_ASSERTION_ID');
  mutantIds.add(m.assertionId);
- if(!['geometry','spacing','typography','color','asset','structure','text'].includes(m.category))throw Error('INVALID_MUTATION_CATEGORY');
+ if(!Object.hasOwn(properties,m.category)||!properties[m.category].has(checksById.get(m.assertionId).property))throw Error('MUTATION_CATEGORY_DOES_NOT_MATCH_GOLD_PROPERTY: '+m.assertionId);
  categories.add(m.category);
  if(typeof m.file!=='string'||!safeFile.test(m.file)||m.file.split('/').includes('..'))throw Error('UNSAFE_SOURCE_MUTATION_PATH');
  if(typeof m.from!=='string'||typeof m.to!=='string'||m.from.length<4||m.from.length>2000||m.to.length>2000||!m.to||m.from===m.to)throw Error('INVALID_SOURCE_REPLACEMENT');
