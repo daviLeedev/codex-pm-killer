@@ -8,6 +8,21 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.3.3 — Standardized E2E + Independent QA Benchmark (2026-11-13)
+
+**Benchmark harness only — v6.3.2 skill UI analysis, browser Figma inspection and fixing algorithms unchanged.**
+
+**Added**
+- `benchmarks/v6.3.3/prepare.mjs`: fresh initial Vue workspaces for A Plain Prompt / B Single Skill / C Real Parallel Skill, in **both** E2E and QA tracks. Locks identical source, Gold, asset and prompt SHA-256; refuses unbalanced 150-assertion Gold and leaking Gold into project roots.
+- `benchmarks/v6.3.3/grade.mjs`: offline independent frozen 150-assertion UI score, controlled QA TP/FP/FN + confirmed fixes/regressions, budget ledger reconciliation and A-input contamination checks.
+- `benchmarks/v6.3.3/parallel-proof.mjs`: host-native subagent spawn evidence, session overlap for both tracks, Figma browser lock checks; role-labeled sequential calls do **not** qualify as C.
+- `tests/v6.3.3-selftest.mjs`: synthetic CLI integration tests without API spend. Protocol and private plan example included.
+
+**Caveats**
+- The benchmark harness does NOT spawn agents, access Figma, grant OS-level isolation or authenticate provider billing. Dot/host must supply actual private evidence.
+- No new paid Algolia Home A/B/C result is asserted until both tracks run freshly and pass evidence gates. Each n=1 run is exploratory, never proof of average model superiority.
+- Keep historical v6.3.x results immutable; compare versions only when Gold AND independent evaluator locks are equal.
+
 ### v6.3.2 — Benchmark Readiness & Shared Asset Integrity (2026-11-12)
 
 **Budget policy update (2026-11-13):** 신규 Algolia Home A/B/C 실험에 대해 사용자가 합산 $10을 명시적으로 승인했으므로 기본 $5는 유지하면서 신규 실행에 한해 최대 $10을 허용. 승인 파일 SHA-256과 새 실행 원장을 일치 검증하며 기존 실험 이력은 변경하지 않음.
