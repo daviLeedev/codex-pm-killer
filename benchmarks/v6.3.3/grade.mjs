@@ -48,11 +48,26 @@ export function validateBudget(ledger,lock){
  const actual=req.filter(x=>x.state==='SETTLED').reduce((v,x)=>v+(x.actualMicro??0),0);
  const reserved=req.filter(x=>x.state!=='SETTLED'&&x.state!=='VOID').reduce((v,x)=>v+(x.reservedMicro??0),0);
  const ok=ledger.capMicro===cap&&actual+reserved<=cap&&req.every(x=>/^(I|II)-(A|B|C)-/.test(x.id??'')&&x.state==='SETTLED'&&
-   typeof x.rawSha256==='string'&&Number.isInteger(x.actualMicro)&&x.actualMicro>=0);
+   /^[a-f0-9]{64}$/i.test(x.rawSha256??'')&&/^[a-f0-9]{64}$/i.test(x.usageSha256??'')&&Number.isInteger(x.actualMicro)&&x.actualMicro>=0);
  return {status:ok?'RECORDED_POLICY_CONSISTENT':'UNVERIFIED_BILLING_LEDGER',capUsd:lock.approvedCapUsd,estimatedTotalUsd:actual/1e6,reservedUsd:reserved/1e6,requestCount:req.length,
   caveat:'Journal-derived cost is not a provider invoice.'};
 }
 function cost(ledger,track,group){const prefix=track+'-'+group+'-',r=(ledger.requests??[]).filter(x=>x.id?.startsWith(prefix));return {requests:r.length,usd:r.reduce((v,x)=>v+(x.actualMicro??0),0)/1e6}}
+async function verifiedUsage(ledger,track,group,folder){
+ const requests=(ledger.requests??[]).filter(r=>r.id?.startsWith(track+'-'+group+'-'));
+ const tokens={inputTokens:0,outputTokens:0,cachedInputTokens:0,reasoningOutputTokens:0};
+ for(const req of requests){
+  const bytes=await fs.readFile(path.join(folder,'usage',encodeURIComponent(req.id)+'.json'));
+  if(sha256(bytes)!==req.usageSha256)throw Error('API_USAGE_EVIDENCE_HASH_MISMATCH: '+req.id);
+  const u=JSON.parse(bytes.toString('utf8'));
+  if(u.requestId!==req.id||u.model!==req.model)throw Error('API_USAGE_REQUEST_OR_MODEL_MISMATCH');
+  for(const k of Object.keys(tokens)){
+   if(!Number.isSafeInteger(u[k])||u[k]<0)throw Error('API_USAGE_INVALID_'+k);
+   tokens[k]+=u[k];
+  }
+ }
+ return tokens;
+}
 const arg=k=>{const a=process.argv.slice(2),i=a.indexOf('--'+k);return i<0?null:a[i+1]};
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const dir=arg('run'),qaPath=arg('qa-gold'),ledgerPath=arg('ledger'),proofPath=arg('parallel-proof'),out=arg('out');
@@ -78,6 +93,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
    if(g==='C'&&meta.agentRuntime!=='NATIVE_PARALLEL')throw Error('C_NOT_ACTUAL_PARALLEL');
    if(!Number.isFinite(meta.durationMs)||meta.durationMs<0)throw Error('RUNTIME_DURATION_MISSING');
    row.durationMs=meta.durationMs;
+   row.tokens=await verifiedUsage(ledger,t,g,folder);
    const fin=await parse(path.join(folder,t==='I'?'final-quality.json':'after-quality.json'));
    const actualPath=path.join(folder,'final-runtime.json'),actualBytes=await fs.readFile(actualPath),runtime=JSON.parse(actualBytes.toString('utf8'));
    if(runtime.captureEnvironment!=='REAL_APP_RUNTIME'||JSON.stringify(runtime.viewport)!==JSON.stringify(lock.viewport)||
