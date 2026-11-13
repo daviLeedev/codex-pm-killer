@@ -24,7 +24,7 @@ A/B/C get an **identical faulty Home** with >=20 preregistered injected defects 
 
 ## Locked protocol and input parity
 
-Before calling an API, create a private plan JSON following \`assets/v6.3.3-plan.example.json\`. Lock \`skillCommit\`, \`evaluatorCommit\`, \`protocolVersion\`, \`figmaUrl\`, design frame ID and viewport, \`initialProjectSHA\`, Gold 150 assertion SHA, QA mutation Gold SHA, asset pack hash, actual model IDs/reasoning, browser version and aggregate cost cap. Run:
+Before calling an API, use v6.3.2 `freeze-truth.mjs`, `asset-pack.mjs` and `readiness-gate.mjs` to create verified private `goldLock`, `assetLock` and `readinessReport` artifacts. Their hashes and approved cap must match the new run; otherwise preparation must fail. Then create a private plan JSON following \`assets/v6.3.3-plan.example.json\`. Lock \`skillCommit\`, \`evaluatorCommit\`, \`protocolVersion\`, \`figmaUrl\`, design frame ID and viewport, \`initialProjectSHA\`, Gold 150 assertion SHA, QA mutation Gold SHA, asset pack hash, actual model IDs/reasoning, browser version and aggregate cost cap. Run:
 
 \`\`\`bash
 node benchmarks/v6.3.3/prepare.mjs --plan .design-qa/v633-plan.json --out .design-qa/runs/unique-algolia-home
@@ -51,7 +51,7 @@ node benchmarks/v6.3.3/parallel-proof.mjs --events PRIVATE_EVENTS.json --evidenc
 
 If only prompt roles were executed sequentially, C is \`C_PARALLEL_BLOCKED\`, not a simulated PASS. The script cannot authenticate the host's log source.
 
-Each API request uses a fresh **combined $10 user-approved** v6.3.2 budget journal (request IDs \`I-A-...\`, \`II-B-...\`, etc.), recording raw response, usages, failures and settled costs. Do not rewrite historical $5 journal or previous A/B/C benchmark. No API calls in this harness.
+Each API request uses a fresh **combined $10 user-approved** v6.3.2 budget journal (request IDs \`I-A-...\`, \`II-B-...\`, etc.), recording raw response, usages, failures and settled costs. For each request, store the authenticated normalized usage record under `PRIVATE_RUN_DIR/evidence/track-{I|II}/{A|B|C}/usage/<request-id>.json` with `{requestId,model,inputTokens,outputTokens,cachedInputTokens,reasoningOutputTokens}`. Its SHA-256 MUST equal the v6.3.2 budget journal `usageSha256`. Do not rewrite historical $5 journal or previous A/B/C benchmark. No API calls in this harness.
 
 Post-run grading is offline:
 

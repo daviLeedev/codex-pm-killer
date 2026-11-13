@@ -102,8 +102,13 @@ try{
  assert.notEqual(r.status,0);n++;
  const ledger={schemaVersion:1,capMicro:10000000,requests:[]};
  for(const t of ['I','II'])for(const g of ['A','B','C']){
-  ledger.requests.push({id:t+'-'+g+'-1',state:'SETTLED',actualMicro:100000,rawSha256:'e'.repeat(64)});
+  const requestId=t+'-'+g+'-1';
+  const usage={requestId,model:'test-model',inputTokens:1000,outputTokens:200,cachedInputTokens:100,reasoningOutputTokens:50};
+  const usageBytes=Buffer.from(JSON.stringify(usage));
+  ledger.requests.push({id:requestId,model:'test-model',state:'SETTLED',actualMicro:100000,rawSha256:'e'.repeat(64),usageSha256:hash(usageBytes)});
   const d=path.join(out,'evidence','track-'+t,g);await fs.mkdir(d,{recursive:true});
+  await fs.mkdir(path.join(d,'usage'));
+  await fs.writeFile(path.join(d,'usage',encodeURIComponent(requestId)+'.json'),usageBytes);
   const meta={initialProjectSha256:lock.sourceHashes[t],model:'test-model',reasoning:'low',completed:true,realVueRuntime:true,contextIsolationConfirmed:true,figmadirectInspector:true,hostInputLogComplete:true,durationMs:1000,
    ...(g==='C'?{agentRuntime:'NATIVE_PARALLEL'}:{})};
   await fs.writeFile(path.join(d,'run.json'),JSON.stringify(meta));
@@ -123,7 +128,7 @@ try{
  r=cli('benchmarks/v6.3.3/grade.mjs',params);
  assert.equal(r.status,0,r.stderr+' '+r.stdout);n++;
  const report=JSON.parse(await fs.readFile(gradeFile,'utf8'));
- assert.equal(report.validity,'EXPLORATORY_SINGLE_RUN');assert.equal(report.tracks.II.B.qa.tp,18);n+=2;
+ assert.equal(report.validity,'EXPLORATORY_SINGLE_RUN');assert.equal(report.tracks.II.B.qa.tp,18);assert.equal(report.tracks.I.A.tokens.inputTokens,1000);n+=3;
  await fs.writeFile(path.join(out,'evidence','track-I','A','inbound-context.json'),JSON.stringify([{role:'tool',content:'read SKILL.md'}]));
  await fs.rm(gradeFile);
  r=cli('benchmarks/v6.3.3/grade.mjs',params);
