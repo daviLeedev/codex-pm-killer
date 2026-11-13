@@ -32,6 +32,8 @@ jobs:
       - run: node --check benchmarks/v6.3.3/prepare.mjs
       - run: node --check benchmarks/v6.3.3/grade.mjs
       - run: node --check benchmarks/v6.3.3/parallel-proof.mjs
+      - run: node --check benchmarks/v6.3.3/aggregate.mjs
+      - run: node --check benchmarks/v6.3.3/history-entry.mjs
       - run: node tests/v6.3.2-budget-authorization-selftest.mjs
   chromium-browser-regression:
     runs-on: ubuntu-24.04

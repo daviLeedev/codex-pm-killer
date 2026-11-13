@@ -17,6 +17,7 @@
 - `benchmarks/v6.3.3/grade.mjs`: offline independent frozen 150-assertion UI score, controlled QA TP/FP/FN + confirmed fixes/regressions, budget ledger reconciliation and A-input contamination checks.
 - `benchmarks/v6.3.3/parallel-proof.mjs`: host-native subagent spawn evidence, session overlap for both tracks, Figma browser lock checks; role-labeled sequential calls do **not** qualify as C.
 - `tests/v6.3.3-selftest.mjs`: synthetic CLI integration tests without API spend. Protocol and private plan example included.
+- `aggregate.mjs`: repeated, paired A/B/C run summaries only when fixed Gold/evaluator/skill locks match; `history-entry.mjs`: generate sanitized Git history draft with manual privacy review.
 
 **Changed**
 - Benchmarks now treat A as a truly plain prompt, B as a single skill-driven agent, and C only as actual concurrently running subagents. End-to-End and QA receive separate evaluations.

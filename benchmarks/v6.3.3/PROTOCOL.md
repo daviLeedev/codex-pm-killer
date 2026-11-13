@@ -53,6 +53,10 @@ If only prompt roles were executed sequentially, C is \`C_PARALLEL_BLOCKED\`, no
 
 Each API request uses a fresh **combined $10 user-approved** v6.3.2 budget journal (request IDs \`I-A-...\`, \`II-B-...\`, etc.), recording raw response, usages, failures and settled costs. For each request, store the authenticated normalized usage record under `PRIVATE_RUN_DIR/evidence/track-{I|II}/{A|B|C}/usage/<request-id>.json` with `{requestId,model,inputTokens,outputTokens,cachedInputTokens,reasoningOutputTokens}`. Its SHA-256 MUST equal the v6.3.2 budget journal `usageSha256`. Do not rewrite historical $5 journal or previous A/B/C benchmark. No API calls in this harness.
 
+For repeated independent runs, execute `node benchmarks/v6.3.3/aggregate.mjs --report run1/graded.json --report run2/graded.json --report run3/graded.json --out private-aggregate.json`. The tool refuses changed Gold/evaluator/skill/input source commitments and reports descriptive paired differences, not overstated statistical proof.
+
+Generate a PUBLIC **draft only** after evidence review via `node benchmarks/v6.3.3/history-entry.mjs --graded private-graded.json --out public-summary.json`, then run `node benchmarks/history/validate.mjs public-summary.json` and manually review before committing to `benchmarks/history/`.
+
 Post-run grading is offline:
 
 \`\`\`bash
