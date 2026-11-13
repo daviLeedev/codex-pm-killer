@@ -28,6 +28,7 @@ jobs:
       - run: node tests/v6.3.1-history-selftest.mjs
       - run: node tests/v6.3.2-selftest.mjs
       - run: node tests/v6.3.2-readiness-selftest.mjs
+      - run: node tests/v6.3.2-budget-authorization-selftest.mjs
   chromium-browser-regression:
     runs-on: ubuntu-24.04
     steps:
