@@ -82,7 +82,7 @@ export async function validateAssetPack(manifestPath,{root,expectedPackId}={}){
  const status=issues.length?'PARTIAL':'READY';
  return {schemaVersion:1,status,packId:manifest.packId??null,manifestSha256:hash(bytes),count:assets.length,assets,issues,warnings,originalVisualFidelity:assets.every(x=>x.originalAvailable&&x.status==='PASS')?'SOURCE_CLAIM_RECORDED':'ORIGINAL_NOT_EVALUABLE',warning:'Substitutes are suitable for shared asset integration tests, not original Figma image/pixel fidelity.'};
 }
-const opt=k=>{const i=process.argv.indexOf('--'+k);return i<0?null:process.argv[i+1]};
+const opt=k=>{const flag=k.startsWith('--')?k:'--'+k;const i=process.argv.indexOf(flag);return i<0?null:process.argv[i+1]};
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const input=opt('--manifest'),out=opt('--out');if(!input||!out)throw Error('Usage: asset-pack.mjs --manifest pack.json --root directory --out asset-lock.json');
  const result=await validateAssetPack(input,{root:opt('--root')||path.dirname(input),expectedPackId:opt('--pack-id')||undefined});
