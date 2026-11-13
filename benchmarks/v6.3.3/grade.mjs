@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {parse,hashFile,writeJSON} from './core.mjs';
+import {parse,hashFile,writeJSON,sha256} from './core.mjs';
 const GROUPS=['A','B','C'],TRACKS=['I','II'],statuses=['MATCH','MISMATCH','NOT_EVALUABLE'];
 export function scoreQA(gold,detected,before,after){
  const muts=new Set(gold.mutatedIds??[]),controls=new Set(gold.controlIds??[]);
@@ -74,15 +74,24 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
   try{
    const meta=await parse(path.join(folder,'run.json'));
    if(meta.initialProjectSha256!==lock.sourceHashes[t]||meta.model!==lock.models[g]||meta.reasoning!==lock.reasoning||meta.completed!==true)throw Error('RUN_METADATA_UNMATCHED');
-   if(meta.realVueRuntime!==true)throw Error('REAL_VUE_CAPTURE_NOT_VERIFIED');
+   if(meta.realVueRuntime!==true||meta.contextIsolationConfirmed!==true||meta.figmadirectInspector!==true||meta.hostInputLogComplete!==true)throw Error('HOST_REAL_VUE_FIGMA_ISOLATION_UNVERIFIED');
+   if(g==='C'&&meta.agentRuntime!=='NATIVE_PARALLEL')throw Error('C_NOT_ACTUAL_PARALLEL');
+   if(!Number.isFinite(meta.durationMs)||meta.durationMs<0)throw Error('RUNTIME_DURATION_MISSING');
+   row.durationMs=meta.durationMs;
    const fin=await parse(path.join(folder,t==='I'?'final-quality.json':'after-quality.json'));
+   const actualPath=path.join(folder,'final-runtime.json'),actualBytes=await fs.readFile(actualPath),runtime=JSON.parse(actualBytes.toString('utf8'));
+   if(runtime.captureEnvironment!=='REAL_APP_RUNTIME'||JSON.stringify(runtime.viewport)!==JSON.stringify(lock.viewport)||
+      runtime.errors?.length||runtime.captureWarnings?.length||runtime.coverageComplete===false)throw Error('NOT_CLEAN_REAL_APP_CAPTURE');
+   if(fin.actualSha256!==sha256(actualBytes))throw Error('EVALUATOR_RUNTIME_HASH_MISMATCH');
    row.quality=scoreFidelity(fin,lock);
    if(row.quality.status!=='SCORED')throw Error('FROZEN_150_INDEPENDENT_REPORT_INVALID');
    const context=await parse(path.join(folder,'inbound-context.json'));
    if(g==='A'){row.contamination=auditBaseline(context);if(row.contamination.status!=='NO_LEAK_FOUND_IN_SUBMITTED_LOG')throw Error('BASELINE_INPUT_NOT_CLEAN_OR_MISSING')}
    if(t==='II'){
     const before=await parse(path.join(folder,'before-quality.json')),detected=await parse(path.join(folder,'detected.json'));
-    if(before.expectedSha256!==lock.goldSha256||scoreFidelity(before,lock).status!=='SCORED')throw Error('BEFORE_QA_REPORT_UNVERIFIED');
+    const beforeBytes=await fs.readFile(path.join(folder,'before-runtime.json')),beforeRuntime=JSON.parse(beforeBytes.toString('utf8'));
+    if(beforeRuntime.captureEnvironment!=='REAL_APP_RUNTIME'||JSON.stringify(beforeRuntime.viewport)!==JSON.stringify(lock.viewport)||beforeRuntime.errors?.length||beforeRuntime.captureWarnings?.length)throw Error('BEFORE_QA_RUNTIME_INVALID');
+    if(before.actualSha256!==sha256(beforeBytes)||before.expectedSha256!==lock.goldSha256||scoreFidelity(before,lock).status!=='SCORED')throw Error('BEFORE_QA_REPORT_UNVERIFIED');
     row.qa=scoreQA(qa,detected,before,fin);
     if(row.qa.status!=='SCORED')throw Error('QA_ASSERTION_EVIDENCE_MISSING');
    }
