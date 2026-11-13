@@ -39,7 +39,10 @@ export function auditBaseline(records){
  for(let i=0;i<records.length;i++){
   const r=records[i];if(!['user','system','developer','tool','tool_result'].includes(r.role))continue;
   const content=typeof r.content==='string'?r.content:JSON.stringify(r.content??'');
-  if(pattern.test(content))findings.push({row:i,role:r.role,reason:'SKILL_OR_GOLD_INPUT_EXPOSURE'});
+  // A prohibition is not proof the agent received a skill or opened its source.
+  const safePolicy=/^\s*Do not read SKILL\.md or any skill instructions\.\s*Use only the ordinary task prompt\.\s*$/i;
+  if(pattern.test(content)&&!((r.role==='system'||r.role==='developer'||r.role==='user')&&safePolicy.test(content)))
+   findings.push({row:i,role:r.role,reason:'SKILL_OR_GOLD_INPUT_EXPOSURE'});
  }
  return {status:findings.length?'CONTAMINATED':'NO_LEAK_FOUND_IN_SUBMITTED_LOG',scanned:records.length,findings};
 }
