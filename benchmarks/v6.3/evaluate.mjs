@@ -84,7 +84,9 @@ function actualValue(property, region, runtime,check={}) {
  if(property==='placeholder_color')return region?.placeholderColor;
  if(property==='placeholder_text')return region?.placeholderText;
  if(property==='asset_kind')return region?.assetKind;
- if(property==='font')return region?.actualRenderedFont??(region?.fontActualUseVerified?css.fontFamily:undefined);
+ if(property==='asset_pack_id')return region?.assetPackId;
+ if(property==='object_fit')return css.objectFit;
+ if(property==='font')return region?.fontActualUseVerified===true?region?.actualRenderedFont:undefined;
  if(property==='size'||property==='font_size')return css.fontSize;
  if(property==='weight'||property==='font_weight')return css.fontWeight;
  if(property==='line_height')return css.lineHeight;
@@ -106,7 +108,7 @@ function match(property,expected,value,tolerance=0){
  if(property==='padding') { const expectedVals=Array.isArray(expected)?expected:Array(4).fill(expected);return Array.isArray(value)&&value.length===4&&value.every((v,i)=>finite(n(v))&&finite(n(expectedVals[i]))&&Math.abs(n(v)-n(expectedVals[i]))<=tolerance); }
  if(property==='gap')return Array.isArray(value)&&value.length>0&&value.every(v=>finite(n(v))&&Math.abs(n(v)-n(expected))<=tolerance);
  if(['element_present','icon_present','image_loaded','horizontal_overflow'].includes(property))return typeof expected==='boolean'&&typeof value==='boolean' ? expected===value:null;
- if(['font','text','placeholder_text','asset_kind'].includes(property))return norm(expected)===norm(value);
+ if(['font','text','placeholder_text','asset_kind','asset_pack_id','object_fit'].includes(property))return norm(expected)===norm(value);
  if(['weight','font_weight'].includes(property)){
   const normalizeWeight=x=>({normal:'400',bold:'700'}[String(x).toLowerCase()]||String(x));
   return normalizeWeight(expected)===normalizeWeight(value);
@@ -138,15 +140,22 @@ export async function evidenceHashes(truth,root){
  return found;
 }
 export function evaluate(truth,runtime,{root='.',hashes=new Map(),synthetic=false,minCoverage=.95}={}){
- const rows=[],runtimeRegions=runtime.regions??[],scopeErrors=[];
+ const rows=[],runtimeRegions=runtime.regions??[],scopeErrors=[],missingRequiredRegions=[];
  if(!Array.isArray(truth.layers)||!truth.layers.length)scopeErrors.push('NO_GOLD_ASSERTIONS');
  if(!Array.isArray(runtimeRegions))scopeErrors.push('NO_RUNTIME_REGIONS');
  if(JSON.stringify(truth.viewport)!==JSON.stringify(runtime.viewport))scopeErrors.push('VIEWPORT_MISMATCH');
  if(runtime.errors?.length||runtime.blockedExternalRequests?.length)scopeErrors.push('RUNTIME_ERRORS_OR_BLOCKED_ASSETS');
+ if(runtime.captureWarnings?.length)scopeErrors.push('RUNTIME_CAPTURE_UNSTABLE');
+ if(runtime.coverageComplete===false)scopeErrors.push('INCOMPLETE_RUNTIME_COVERAGE');
+ if(!synthetic&&runtime.captureEnvironment!=='REAL_APP_RUNTIME')scopeErrors.push('NOT_REAL_APP_RUNTIME');
  if(truth.status!=='FROZEN_VERIFIED'&&!synthetic)scopeErrors.push('GROUND_TRUTH_NOT_VERIFIED');
  const seen=new Set();
+ const runtimeIds=new Set();
+ for(const r of runtimeRegions){if(!r.id||runtimeIds.has(r.id))scopeErrors.push('DUPLICATE_OR_MISSING_RUNTIME_ID');runtimeIds.add(r.id)}
  for(const layer of truth.layers??[]){
   const regions=runtimeRegions.filter(r=>r.id===layer.id);
+  if(layer.required!==false && (regions.length!==1||regions[0]?.visible!==true))
+   missingRequiredRegions.push({id:layer.id,reason:regions.length===0?'MISSING':regions.length>1?'DUPLICATE':'HIDDEN'});
   for(let ix=0;ix<(layer.checks??[]).length;ix++){
    const c=layer.checks[ix],id=c.id??`${layer.id}.${c.property}.${ix}`;
    const row={id,layer:layer.id,property:c.property,expected:c.expected,actual:null,status:'NOT_EVALUABLE',reason:null,severity:c.severity??'P1'};
@@ -163,6 +172,12 @@ export function evaluate(truth,runtime,{root='.',hashes=new Map(),synthetic=fals
    if(!region.visible&&c.property!=='element_present'){row.status='MISMATCH';row.reason='HIDDEN_REGION';rows.push(row);continue}
    if(['font','size','font_size','weight','font_weight','line_height','letter_spacing'].includes(c.property)&&region.requestedFontLoaded===false){row.reason='FONT_NOT_LOADED';rows.push(row);continue}
    const actual=actualValue(c.property,region,runtime,c);row.actual=actual??null;
+   if(c.property==='asset_kind' && c.expected==='raster_photo' && region.assetKind==='raster_photo' && c.requiresOriginal===true){
+    row.reason='PHOTO_CLASS_NOT_ORIGINAL_VISUAL_FIDELITY';rows.push(row);continue;
+   }
+   if(c.property==='asset_pack_id' && c.requiresOriginal===true){
+    row.reason='SUBSTITUTE_CANNOT_PROVE_ORIGINAL';rows.push(row);continue;
+   }
    const verdict=match(c.property,c.expected,actual,c.tolerance??c.tolerance_css_px??0);
    row.status=verdict===null?'NOT_EVALUABLE':verdict?'MATCH':'MISMATCH';row.reason=verdict===null?(c.property==='gap'?'GAP_AXIS_OR_LAYOUT_UNRESOLVED':'UNSUPPORTED_OR_NOT_OBSERVED'):null;
    rows.push(row);
@@ -171,8 +186,8 @@ export function evaluate(truth,runtime,{root='.',hashes=new Map(),synthetic=fals
  const counts=Object.fromEntries(['MATCH','MISMATCH','NOT_EVALUABLE'].map(s=>[s,rows.filter(r=>r.status===s).length]));
  const denom=rows.length,covered=counts.MATCH+counts.MISMATCH,criticalUnknown=rows.filter(r=>r.severity==='P0'&&r.status==='NOT_EVALUABLE').length;
  const coverage=denom?covered/denom:0;
- const status=synthetic?'SYNTHETIC_ONLY':scopeErrors.length?'BLOCKED':coverage<minCoverage||criticalUnknown?'PARTIAL':counts.MISMATCH?'MISMATCH':'VERIFIED_RECORDED_SCOPE';
- return {schemaVersion:1,status,scopeErrors,counts,metrics:{frozenAssertions:denom,evaluableCoverage:coverage,observedMatchRatio:covered?counts.MATCH/covered:null,totalVerifiedRatio:denom?counts.MATCH/denom:0,criticalUnknown},checks:rows,warning:'Evidence hashes only prove file consistency, not Figma authenticity. Screenshot/pixel fidelity and actual font face require independent direct proof.'};
+ const status=synthetic?'SYNTHETIC_ONLY':scopeErrors.length?'BLOCKED':missingRequiredRegions.length||coverage<minCoverage||criticalUnknown?'PARTIAL':counts.MISMATCH?'MISMATCH':'VERIFIED_RECORDED_SCOPE';
+ return {schemaVersion:1,status,scopeErrors,missingRequiredRegions,counts,metrics:{frozenAssertions:denom,evaluableCoverage:coverage,observedMatchRatio:covered?counts.MATCH/covered:null,totalVerifiedRatio:denom?counts.MATCH/denom:0,criticalUnknown},checks:rows,warning:'Evidence hashes only prove file consistency, not Figma authenticity. Screenshot/pixel fidelity and actual font face require independent direct proof.'};
 }
 function arg(name){const i=process.argv.indexOf(name);return i<0?null:process.argv[i+1]}
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){

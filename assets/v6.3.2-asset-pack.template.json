@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "packId": "algolia-home-shared-v1",
+  "description": "Replace ALL placeholder metadata with verified shared files. The template alone is not ready.",
+  "assets": [
+    {
+      "id": "hero",
+      "figmaRegionId": "home/hero",
+      "path": "images/hero.webp",
+      "sha256": "FILL_ACTUAL_FILE_SHA256",
+      "source": "BENCHMARK_SUBSTITUTE",
+      "originalAvailable": false,
+      "license": "FILL_WITH_ACTUAL_SOURCE_OR_LICENSE",
+      "width": 600,
+      "height": 400,
+      "required": true,
+      "expectedFit": "cover"
+    }
+  ]
+}

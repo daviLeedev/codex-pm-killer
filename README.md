@@ -8,6 +8,29 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.3.2 — Benchmark Readiness & Shared Asset Integrity (2026-11-12)
+
+**Budget policy update (2026-11-13):** 신규 Algolia Home A/B/C 실험에 대해 사용자가 합산 $10을 명시적으로 승인했으므로 기본 $5는 유지하면서 신규 실행에 한해 최대 $10을 허용. 승인 파일 SHA-256과 새 실행 원장을 일치 검증하며 기존 실험 이력은 변경하지 않음.
+
+**Added**
+- `benchmarks/v6.3/asset-pack.mjs`: A/B/C 공통 대체 이미지의 SHA-256, 실제 크기, 출처·라이선스 검사와 변조 방지 잠금.
+- `benchmarks/v6.3/readiness-gate.mjs`: 동결 Figma 증거, 필수 영역 매핑, 실제 브라우저 검증, 실행별 명시적 승인 예산(기본 $5, 신규 승인 시 최대 $10)을 확인하는 실행 게이트.
+- 실제 Chromium 기반 `v6.3.2-browser-selftest.mjs`, 필수 영역·폰트·에셋 단위 테스트, 준비도 게이트 테스트.
+
+**Changed**
+- 필수 UI 영역 누락·숨김·중복은 평가 가능률이 95%를 넘더라도 전체 PASS 금지.
+- 실제 사용 글꼴은 Chromium CDP로 조회하고, CSS 폰트 선언만으로 글꼴 일치를 인정하지 않음.
+- 이미지 로딩 대기·재캡처 안정성·고정(sticky) 요소의 레이아웃 흐름·대체 이미지 ID 검증 보강.
+
+**Validation**
+- 기존 v4–v6.3.1 검사와 v6.3.2 단위/준비도 합성 테스트 통과.
+- 통제된 HTML fixture에서 Chromium CDP 폰트·이미지·간격·필수 버튼 누락 등을 실제 브라우저로 검증. CI에 브라우저 검사 작업 추가.
+
+**Limitations**
+- 대체 이미지는 공통 자산 사용·크롭·로딩 검증용이며 원본 Figma 사진의 픽셀 일치를 증명하지 않음.
+- 브라우저 fixture는 실제 Algolia Vue 앱 E2E 검증이 아니며, 실제 Figma 150개 항목의 95% 검증 목표는 아직 미확인.
+- 새 유료 API 벤치마크를 실행하거나 과거 결과를 새 점수로 덮어쓰지 않음.
+
 ### v6.3.1 — Benchmark Evaluation Fixes & History (2026-11-12)
 
 **Added**
@@ -228,3 +251,13 @@ Implementation: [`benchmarks/v6.3/README.md`](benchmarks/v6.3/README.md). Protoc
 ## Benchmark history and evidence retention (v6.3.1)
 
 Full Figma captures, source ZIPs, API raw output, browser sessions and screenshots must remain private. Only a redacted summary of completed runs with frozen count, actual model setup, cost estimates, known limitations and a private bundle hash can go to [benchmarks/history](benchmarks/history/README.md). Every release gets a README **patch note**, but only actual completed benchmark runs get a separate history entry. Never count synthetic fixture tests as real Figma QA wins. Historical v6.3 scores are frozen; correcting an evaluator requires a separately identified re-evaluation using actual available evidence.
+
+## v6.3.2 readiness gate
+
+- [Readiness & asset pack protocol](references/v6.3.2-readiness.md)
+- Shared image substitutes are fixed once for all A/B/C groups. They may demonstrate correct loading and layout, **not original image visual fidelity**.
+- Critical required UI regions may never silently disappear into `NOT_EVALUABLE` and still receive scoped VERIFIED.
+- Evidence collection, asset-lock validation, approval against the original total $5 cap, and browser smoke must precede new paid requests.
+- A real Vue runtime uses `capture-runtime.mjs --url http://localhost:...`. `--fixture-html` is for isolated browser tests only and cannot establish real app fidelity.
+
+Tests: `node tests/v6.3.2-selftest.mjs && node tests/v6.3.2-readiness-selftest.mjs` plus `node tests/v6.3.2-browser-selftest.mjs` where Playwright Chromium is installed. No automatic Figma download, image generation or paid API calls occur in these tests.
