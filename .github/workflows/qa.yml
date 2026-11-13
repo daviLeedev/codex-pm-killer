@@ -30,6 +30,10 @@ jobs:
       - run: node tests/v6.3.2-readiness-selftest.mjs
       - run: node tests/v6.3.3-selftest.mjs
       - run: node tests/v6.3.3-blocked-recovery-selftest.mjs
+      - run: node tests/v6.3.3-qa-fixture-selftest.mjs
+      - run: node --check benchmarks/v6.3.3/qa-plan.mjs
+      - run: node --check benchmarks/v6.3.3/qa-fixture.mjs
+      - run: node --check benchmarks/v6.3.3/qa-fixture-proof.mjs
       - run: node tests/v6.3.3-asset-pack-cli-selftest.mjs
       - run: node --check benchmarks/v6.3.3/prepare.mjs
       - run: node --check benchmarks/v6.3.3/grade.mjs

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "goldSha256": "REPLACE_WITH_VERIFIED_PRIVATE_GOLD_SHA256",
+  "mutations": [
+    {
+      "assertionId": "GOLD_ASSERTION_ID",
+      "category": "geometry",
+      "file": "src/App.vue",
+      "from": ".hero { width: 320px; }",
+      "to": ".hero { width: 333px; }"
+    }
+  ],
+  "controlIds": [
+    "OTHER_GOLD_ASSERTION_ID"
+  ]
+}
