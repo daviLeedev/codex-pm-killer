@@ -18,8 +18,19 @@ const output=o=>console.log(JSON.stringify(o,null,2));
 try{
  if(action==='init')await tx(async()=>{
   try{await fs.access(stateFile);throw Error('Ledger exists: do not overwrite billing history')}catch(e){if(e.code!=='ENOENT')throw e}
-  const cap=micro(arg('cap-usd')??'5.000000');if(cap>5000000)throw Error('Approved user ceiling is $5.00; do not override without a new explicit authorization workflow');
-  const j={schemaVersion:1,capMicro:cap,requests:[],events:[],createdAt:new Date().toISOString(),warning:'Software reservation cap only. Cannot guarantee external provider bills or unknown tool charges.'};
+  const cap=micro(arg('cap-usd')??'5.000000');
+  if(!cap||cap>10000000)throw Error('Allowed positive aggregate cap is at most $10; higher amounts need separate review and approval');
+  let approvalSha256=null;
+  if(cap>5000000){
+   const approvalFile=arg('approval');
+   if(!approvalFile)throw Error('Explicit approved-budget.json is required for a new cap above $5 (--approval FILE)');
+   const bytes=await fs.readFile(approvalFile),approval=JSON.parse(bytes.toString('utf8'));
+   const approved=typeof approval.approvedMaxUsd==='number'?Math.round(approval.approvedMaxUsd*1e6):NaN;
+   if(approval.schemaVersion!==1||approval.currency!=='USD'||approval.scope!=='ALL_AB_C'||approval.approvedBy!=='USER_EXPLICIT'||typeof approval.evidenceId!=='string'||!approval.evidenceId.trim()||!Number.isSafeInteger(approved)||approved!==cap)
+    throw Error('User authorization declaration must match exact A/B/C aggregate cap');
+   approvalSha256=hash(bytes);
+  }
+  const j={schemaVersion:1,capMicro:cap,approvalSha256,requests:[],events:[],createdAt:new Date().toISOString(),warning:'Software reservation cap only; approval record and real provider billing cannot be independently authenticated here.'};
   await write(j);output({status:'INITIALIZED',...totals(j)});
  });
  else if(action==='reserve')await tx(async()=>{
