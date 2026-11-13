@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "runId": "algolia-home-v633-unique-run-01",
+  "scope": "Algolia-Mobile-Home",
+  "figmaUrl": "https://www.figma.com/community/file/981543186947734892",
+  "task": "Implement only the original mobile Home screen of the referenced Figma design. Use the provided initial Vue app and shared assets; self-review and fix the final result.",
+  "protocolVersion": "3.0.0",
+  "skillCommit": "REPLACE_WITH_FULL_SKILL_SHA",
+  "evaluatorCommit": "REPLACE_WITH_EVALUATOR_SHA",
+  "browserVersion": "REPLACE_WITH_ACTUAL_CHROMIUM_VERSION",
+  "viewport": {
+    "width": 375,
+    "height": 1069
+  },
+  "reasoning": "low",
+  "models": {
+    "A": "REPLACE_WITH_REAL_MODEL_ID",
+    "B": "REPLACE_WITH_SAME_REAL_MODEL_ID",
+    "C": "RECORD_ACTUAL_WORKER_MODELS_IN_EVIDENCE"
+  },
+  "approvedCapUsd": 10,
+  "inputs": {
+    "implementationProject": "PRIVATE_PATH_CLEAN_VUE",
+    "qaFaultyProject": "PRIVATE_PATH_FAULTY_HOME",
+    "goldTruth": "PRIVATE_PATH_FROZEN_GOLD_150.json",
+    "qaGold": "PRIVATE_PATH_PRIVATE_20_DEFECTS_AND_20_CONTROLS.json",
+    "assetManifest": "PRIVATE_PATH_SHARED_ASSETS.json",
+    "goldLock": "PRIVATE_PATH_GOLD_LOCK.json",
+    "assetLock": "PRIVATE_PATH_ASSET_LOCK.json",
+    "readinessReport": "PRIVATE_PATH_READINESS_GATE.json"
+  }
+}

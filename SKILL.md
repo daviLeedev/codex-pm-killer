@@ -3,7 +3,11 @@ name: codex-pm-killer
 description: Inspect view-only Figma designs using a host-provided authenticated browser (Codex, Claude Code, Gemini CLI, or another capable coding agent) without Figma MCP/API, extract observable layout/typography/spacing values and layer hierarchy, implement them in the existing web app, and iteratively verify rendered UI with Playwright and documented evidence. Use for Figma-to-code, pixel-accuracy audits, UI reconstruction, and especially strict detail-fix after an initial rough UI has been implemented, when the user provides a Figma link or an already-open Figma browser tab.
 ---
 
-# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.3.1)
+# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.3.3)
+
+## v6.3.3 independent benchmark protocol (measurement only)
+
+When asked to benchmark the skill itself, use `benchmarks/v6.3.3/PROTOCOL.md` and the `prepare.mjs`, `grade.mjs`, `parallel-proof.mjs` offline scripts. A Plain Prompt must not read this SKILL.md, skill-derived Figma properties, Gold or B/C outputs; only the independent benchmark controller reads this instruction. Run Track I fresh End-to-End AND Track II controlled QA/Fix for A/B/C, and report C as blocked unless real host subagent overlaps and logs exist. **This change does not alter UI implementation or fix behavior.**
 
 ## Host and model portability (v6.2)
 
