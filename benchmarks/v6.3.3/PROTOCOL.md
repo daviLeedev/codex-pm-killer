@@ -24,6 +24,24 @@ All groups have same Home Figma URL and read-only browser rights, same blank Vue
 
 Start **fresh** A/B/C workspaces from the same initial Vue project, inspect mobile Home in actual Figma viewer (not Figma MCP/API/plugin), implement, review, fix, run/build, capture real Vue Chromium DOM and screenshot. An **independent evaluator** checks same 150 frozen Figma assertions, and additionally reports icon/photo asset fidelity separately. Key metrics: MATCH/MISMATCH/NOT_EVALUABLE, major regions missing, rendered geometry, typography, assets, time and API spend.
 
+## Track II fixture preparation (private source, no previous A/B/C output)
+
+Create a neutral clean Vue Home reference independently of A/B/C, with the same Figma Home and common fonts/assets. Do not reuse historical A/B/C apps. Freeze a PRIVATE 20-defect mutation plan + 20 untouched controls (see `assets/v6.3.3-qa-mutation-plan.example.json`). Source replacements must be unambiguous and match assertion IDs in the verified 150-item Figma Gold.
+
+```bash
+node benchmarks/v6.3.3/qa-fixture.mjs --clean PRIVATE/clean-home --gold PRIVATE/gold.json --plan PRIVATE/qa-plan.json --out PRIVATE/faulty-home --qa-gold-out PRIVATE/HIDDEN/qa-gold.json --lock-out PRIVATE/HIDDEN/qa-lock.json
+```
+
+Next, use REAL Vue Chromium browser captures and the frozen evaluator for both neutral clean and faulty Home; verify actual effects and no collateral damage:
+
+```bash
+node benchmarks/v6.3.3/qa-fixture-proof.mjs --clean PRIVATE/clean-home --faulty PRIVATE/faulty-home --gold PRIVATE/gold.json --qa-gold PRIVATE/HIDDEN/qa-gold.json --fixture-lock PRIVATE/HIDDEN/qa-lock.json --clean-quality PRIVATE/HIDDEN/clean-quality.json --faulty-quality PRIVATE/HIDDEN/faulty-quality.json --clean-runtime PRIVATE/HIDDEN/clean-runtime.json --faulty-runtime PRIVATE/HIDDEN/faulty-runtime.json --out PRIVATE/HIDDEN/proof.json
+```
+
+Do not start Track II A/B/C unless proof status is `QA_FIXTURE_VERIFIED_FOR_FROZEN_40`. Identical faulty source bytes go to all three groups. The original source, mutation plan, clean Gold and proof live outside every agent workspace. A failure to reproduce 20 actual MISMATCH, any changed unaffected assertion, or an unverified real-app capture must block the fixture.
+
+**Current limitation:** The private frozen Gold bytes and independently prepared clean reference Vue were not included in the supplied compact BLOCKED report. This repository provides the tools, not fabricated private source code. The run is not fully READY until actual host inputs and proof are available.
+
 ## Track II — Controlled QA & Fix
 
 A/B/C get an **identical faulty Home** with >=20 preregistered injected defects and >=20 known-good controls. Keep defect Gold **outside agent-readable workspaces**. Each reports IDs found and attempted IDs fixed; separately independent before/after 150-assertion evaluators must verify MISMATCH -> MATCH for confirmed fixes. Count TP/FP/FN, precision, recall, confirmed fixes and regressions. Do not infer repaired from an agent's "fixed" claim.

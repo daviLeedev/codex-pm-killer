@@ -32,6 +32,12 @@
 - No new paid Algolia Home A/B/C result is asserted until both tracks run freshly and pass evidence gates. Each n=1 run is exploratory, never proof of average model superiority.
 - Keep historical v6.3.x results immutable; compare versions only when Gold AND independent evaluator locks are equal.
 
+**Track II fixture follow-up (2026-11-13):**
+- `qa-fixture.mjs` applies exactly 20 **hidden in-place source mutations** to a separately prepared clean Vue Home and stores 20 healthy control IDs in private QA Gold, outside agent workspaces.
+- `qa-fixture-proof.mjs` verifies that actual Chromium evidence shows exactly those 20 frozen assertions become MISMATCH while 20 controls stay MATCH. Collateral mismatches block the fixture.
+- This does not create a proprietary Figma-based neutral clean Home automatically. That private reference and original new Gold data must be supplied by the execution host; no previous A/B/C implementation can be reused.
+- New CLI regression test verifies deterministic source mutations, hidden answer isolation, integrity pinning and failure cases. No new paid A/B/C experiment was run.
+
 ### v6.3.2 — Benchmark Readiness & Shared Asset Integrity (2026-11-12)
 
 **Budget policy update (2026-11-13):** 신규 Algolia Home A/B/C 실험에 대해 사용자가 합산 $10을 명시적으로 승인했으므로 기본 $5는 유지하면서 신규 실행에 한해 최대 $10을 허용. 승인 파일 SHA-256과 새 실행 원장을 일치 검증하며 기존 실험 이력은 변경하지 않음.
