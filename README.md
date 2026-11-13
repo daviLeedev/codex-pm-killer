@@ -18,8 +18,16 @@
 - `benchmarks/v6.3.3/parallel-proof.mjs`: host-native subagent spawn evidence, session overlap for both tracks, Figma browser lock checks; role-labeled sequential calls do **not** qualify as C.
 - `tests/v6.3.3-selftest.mjs`: synthetic CLI integration tests without API spend. Protocol and private plan example included.
 
-**Caveats**
-- The benchmark harness does NOT spawn agents, access Figma, grant OS-level isolation or authenticate provider billing. Dot/host must supply actual private evidence.
+**Changed**
+- Benchmarks now treat A as a truly plain prompt, B as a single skill-driven agent, and C only as actual concurrently running subagents. End-to-End and QA receive separate evaluations.
+- No change to v6.3.2 UI implementation, inspection or fixing algorithms. Historical result denominators are never silently rewritten.
+
+**Validation**
+- `node tests/v6.3.3-selftest.mjs` exercises fresh workspace parity, frozen Gold composition, baseline contamination, two-track native-parallel proof and independent QA scoring.
+- Existing v4–v6.3.2 CI suites remain part of the release gate.
+
+**Limitations**
+- The harness does NOT spawn agents, access Figma, grant OS-level isolation or authenticate provider billing. Dot/host must supply actual private evidence.
 - No new paid Algolia Home A/B/C result is asserted until both tracks run freshly and pass evidence gates. Each n=1 run is exploratory, never proof of average model superiority.
 - Keep historical v6.3.x results immutable; compare versions only when Gold AND independent evaluator locks are equal.
 
