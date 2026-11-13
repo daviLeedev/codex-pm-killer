@@ -23,6 +23,14 @@ for(const secret of ['goldTruth','qaGold']) {
 }
 const sourceHashes={I:await treeHash(inputs.implementationProject),II:await treeHash(inputs.qaFaultyProject)};
 const [goldSha256,qaGoldSha256,assetManifestSha256]=await Promise.all([hashFile(inputs.goldTruth),hashFile(inputs.qaGold),hashFile(inputs.assetManifest)]);
+const [goldLock,assetLock,readiness]=await Promise.all([parse(inputs.goldLock),parse(inputs.assetLock),parse(inputs.readinessReport)]);
+if(goldLock.status!=='FROZEN_RECORDED_EVIDENCE'||goldLock.truthSha256!==goldSha256||goldLock.assertions!==150||goldLock.unknown?.length||goldLock.problems?.length)
+ throw Error('GOLD_LOCK_NOT_DIRECT_EVIDENCE_VERIFIED');
+if(assetLock.status!=='READY'||assetLock.manifestSha256!==assetManifestSha256||assetLock.issues?.length)
+ throw Error('SHARED_ASSET_LOCK_NOT_VERIFIED');
+if(!['READY','READY_WITH_SUBSTITUTES'].includes(readiness.status)||readiness.truthSha256!==goldSha256||
+ readiness.packSha256!==assetLock.manifestSha256||readiness.approvedCapUsd!==p.approvedCapUsd)
+ throw Error('V632_READINESS_GATE_NOT_PASSED_FOR_THIS_RUN');
 const gold=await parse(inputs.goldTruth);
 const checks=(gold.layers??[]).flatMap(l=>l.checks??[]);
 if(gold.status!=='FROZEN_VERIFIED'||checks.length!==150||new Set(checks.map(x=>x.id)).size!==150)
@@ -43,6 +51,8 @@ const qa=await parse(inputs.qaGold);
 if(!Array.isArray(qa.mutatedIds)||qa.mutatedIds.length<20||!Array.isArray(qa.controlIds)||qa.controlIds.length<20)throw Error('QA_GOLD_NEEDS_20_MUTATIONS_AND_20_CONTROLS');
 const discovered=new Set([...qa.mutatedIds,...qa.controlIds]);
 if(discovered.size!==qa.mutatedIds.length+qa.controlIds.length)throw Error('QA_GOLD_DUPLICATE_OR_OVERLAPPING_IDS');
+const validCheckIds=new Set(checks.map(x=>x.id));
+if([...discovered].some(id=>!validCheckIds.has(id)))throw Error('QA_GOLD_IDS_NOT_IN_FROZEN_150');
 const workspaces={I:{},II:{}},instructions={I:{},II:{}};
 for(const track of ['I','II'])for(const group of ['A','B','C']){
  const dest=path.join(dir,'work','track-'+track,group);
@@ -62,7 +72,7 @@ for(const track of ['I','II'])for(const group of ['A','B','C']){
 const lock={schemaVersion:1,runId:p.runId,scope:p.scope,protocolVersion:p.protocolVersion,figmaUrl:p.figmaUrl,
  models:p.models,reasoning:p.reasoning,viewport:p.viewport,browserVersion:p.browserVersion,
  skillCommit:p.skillCommit,evaluatorCommit:p.evaluatorCommit,approvedCapUsd:p.approvedCapUsd,
- sourceHashes,goldSha256,qaGoldSha256,assetManifestSha256,goldPropertyGroups:counts,workspaces,instructions,
+ sourceHashes,goldSha256,qaGoldSha256,assetManifestSha256,goldLockSha256:await hashFile(inputs.goldLock),assetLockSha256:await hashFile(inputs.assetLock),readinessSha256:await hashFile(inputs.readinessReport),goldPropertyGroups:counts,workspaces,instructions,
  separateGoldRequired:true,productionQaIndependentEvaluatorRequired:true,parallelCRequired:true,
  status:'PREPARED_NOT_EXECUTED',
  caveat:'Worktrees and prompt separation are prepared, but host-level filesystem/browser permissions and agent prompt ingestion must be independently audited.'};

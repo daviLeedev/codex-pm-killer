@@ -24,6 +24,9 @@
     "qaFaultyProject": "PRIVATE_PATH_FAULTY_HOME",
     "goldTruth": "PRIVATE_PATH_FROZEN_GOLD_150.json",
     "qaGold": "PRIVATE_PATH_PRIVATE_20_DEFECTS_AND_20_CONTROLS.json",
-    "assetManifest": "PRIVATE_PATH_SHARED_ASSETS.json"
+    "assetManifest": "PRIVATE_PATH_SHARED_ASSETS.json",
+    "goldLock": "PRIVATE_PATH_GOLD_LOCK.json",
+    "assetLock": "PRIVATE_PATH_ASSET_LOCK.json",
+    "readinessReport": "PRIVATE_PATH_READINESS_GATE.json"
   }
 }

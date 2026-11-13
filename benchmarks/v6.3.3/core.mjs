@@ -39,7 +39,7 @@ export const onlyABC=obj=>['A','B','C'].every(k=>obj&&Object.hasOwn(obj,k));
 export function validatePlan(p){
  if(p.schemaVersion!==1||p.scope!=='Algolia-Mobile-Home'||!p.runId||!(/^[a-z0-9][a-z0-9_-]{7,79}$/i.test(p.runId)))throw Error('PLAN_SCOPE_OR_ID_INVALID');
  if(!p.figmaUrl?.startsWith('https://www.figma.com/')||!p.task?.trim())throw Error('FIGMA_OR_TASK_MISSING');
- if(!p.inputs||Object.values(['implementationProject','qaFaultyProject','goldTruth','qaGold','assetManifest']).some(k=>typeof p.inputs[k]!=='string'||!p.inputs[k]))throw Error('PLAN_INPUTS_MISSING');
+ if(!p.inputs||Object.values(['implementationProject','qaFaultyProject','goldTruth','qaGold','assetManifest','goldLock','assetLock','readinessReport']).some(k=>typeof p.inputs[k]!=='string'||!p.inputs[k]))throw Error('PLAN_INPUTS_MISSING');
  if(!p.models||p.models.A!==p.models.B||!p.models.A||!p.models.C)throw Error('A_B_MODEL_PARITY_FAILED');
  if(!['low','medium','high'].includes(p.reasoning)||!Number.isInteger(p.viewport?.width)||!Number.isInteger(p.viewport?.height))throw Error('PLAN_RUNTIME_UNFIXED');
  if(typeof p.approvedCapUsd!=='number'||p.approvedCapUsd<=0||p.approvedCapUsd>10)throw Error('BUDGET_NOT_APPROVED');

@@ -26,9 +26,14 @@ try{
  const qaGold={mutatedIds:checks.slice(0,20).map(x=>x.id),controlIds:checks.slice(20,40).map(x=>x.id)};
  const qaFile=path.join(dir,'qa-gold.json');await fs.writeFile(qaFile,JSON.stringify(qaGold));
  const asset=path.join(dir,'asset.json');await fs.writeFile(asset,'{"assets":[]}');
+ const goldLockFile=path.join(dir,'gold-lock.json'),assetLockFile=path.join(dir,'asset-lock.json'),readyFile=path.join(dir,'readiness.json');
+ const goldSha=await hashFile(goldFile),assetSha=await hashFile(asset);
+ await fs.writeFile(goldLockFile,JSON.stringify({status:'FROZEN_RECORDED_EVIDENCE',truthSha256:goldSha,assertions:150,unknown:[],problems:[]}));
+ await fs.writeFile(assetLockFile,JSON.stringify({status:'READY',manifestSha256:assetSha,issues:[]}));
+ await fs.writeFile(readyFile,JSON.stringify({status:'READY_WITH_SUBSTITUTES',truthSha256:goldSha,packSha256:assetSha,approvedCapUsd:10}));
  const plan={schemaVersion:1,runId:'algolia-home-v633-test-01',scope:'Algolia-Mobile-Home',figmaUrl:'https://www.figma.com/community/file/981543186947734892',
   task:'Reproduce the mobile Home only with the same tools and assets.',inputs:{implementationProject:'initial',qaFaultyProject:'faulty',
-   goldTruth:'gold.json',qaGold:'qa-gold.json',assetManifest:'asset.json'},
+   goldTruth:'gold.json',qaGold:'qa-gold.json',assetManifest:'asset.json',goldLock:'gold-lock.json',assetLock:'asset-lock.json',readinessReport:'readiness.json'},
   models:{A:'test-model',B:'test-model',C:'test-model'},reasoning:'low',viewport:{width:375,height:1069},
   approvedCapUsd:10,skillCommit:'a'.repeat(40),evaluatorCommit:'b'.repeat(40),protocolVersion:'3.0.0',browserVersion:'test-chromium'};
  const planFile=path.join(dir,'plan.json'),out=path.join(dir,'run');await fs.writeFile(planFile,JSON.stringify(plan));
