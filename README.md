@@ -10,9 +10,11 @@
 
 ### v6.3.2 — Benchmark Readiness & Shared Asset Integrity (2026-11-12)
 
+**Budget policy update (2026-11-13):** 신규 Algolia Home A/B/C 실험에 대해 사용자가 합산 $10을 명시적으로 승인했으므로 기본 $5는 유지하면서 신규 실행에 한해 최대 $10을 허용. 승인 파일 SHA-256과 새 실행 원장을 일치 검증하며 기존 실험 이력은 변경하지 않음.
+
 **Added**
 - `benchmarks/v6.3/asset-pack.mjs`: A/B/C 공통 대체 이미지의 SHA-256, 실제 크기, 출처·라이선스 검사와 변조 방지 잠금.
-- `benchmarks/v6.3/readiness-gate.mjs`: 동결 Figma 증거, 필수 영역 매핑, 실제 브라우저 검증, $5 승인 예산을 사전 검사하는 실행 게이트.
+- `benchmarks/v6.3/readiness-gate.mjs`: 동결 Figma 증거, 필수 영역 매핑, 실제 브라우저 검증, 실행별 명시적 승인 예산(기본 $5, 신규 승인 시 최대 $10)을 확인하는 실행 게이트.
 - 실제 Chromium 기반 `v6.3.2-browser-selftest.mjs`, 필수 영역·폰트·에셋 단위 테스트, 준비도 게이트 테스트.
 
 **Changed**
