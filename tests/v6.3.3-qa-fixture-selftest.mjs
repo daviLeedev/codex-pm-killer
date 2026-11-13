@@ -29,19 +29,26 @@ try{
  for(let i=0;i<150;i++){
   const g=groups[i%groups.length],id='ASSERT-'+String(i).padStart(3,'0'),selector='.slot-'+i;
   const line=selector+'{'+g.css+':'+g.old+';}';
-  css.push(line);html.push('<div class="slot-'+i+'">Example '+i+'</div>');
-  checks.push({id,property:g.property,expected:g.old});
+  css.push(line);html.push('<div data-bench-id="L'+i+'" class="slot-'+i+'">Example '+i+'</div>');
+  checks.push({id,property:g.property,expected:g.category==='color'?g.old:g.category==='structure'?true:Number.parseFloat(g.old),layerId:'L'+i});
   if(i<20)mutations.push({assertionId:id,category:g.category,file:'src/App.vue',from:line,to:selector+'{'+g.css+':'+g.newValue+';}'});
  }
  const app='<template><main>'+html.join('')+'</main></template>\n<style>\n'+css.join('\n')+'\n</style>\n';
  await fs.writeFile(path.join(clean,'src','App.vue'),app);
  const goldFile=path.join(privateDir,'truth.json');
  const gold={schemaVersion:1,status:'FROZEN_VERIFIED',viewport:{width:375,height:1069},
-  layers:[{id:'Home',required:true,checks}]};
+  layers:checks.map(c=>({id:c.layerId,required:true,checks:[{id:c.id,property:c.property,expected:c.expected}]}))};
  await fs.writeFile(goldFile,JSON.stringify(gold));
  const planPath=path.join(privateDir,'mutations.json'),plan={schemaVersion:1,goldSha256:hash(await fs.readFile(goldFile)),
   mutations,controlIds:checks.slice(20,40).map(x=>x.id)};
  await fs.writeFile(planPath,JSON.stringify(plan));
+ const autoPlan=path.join(privateDir,'auto-mutations.json'),autoReport=path.join(privateDir,'auto-report.json');
+ let suggested=call(path.join(root,'benchmarks/v6.3.3/qa-plan.mjs'),'--clean',clean,'--gold',goldFile,'--out',autoPlan,'--report',autoReport);
+ assert.equal(suggested.status,0,suggested.stderr+' '+suggested.stdout);
+ const proposal=JSON.parse(await fs.readFile(autoPlan,'utf8'));
+ assert.equal(proposal.mutations.length,20);
+ assert.equal(proposal.controlIds.length,20);
+ assertions+=3;
  const qaFile=path.join(privateDir,'qa-gold.json'),lockFile=path.join(privateDir,'fixture-lock.json');
  const options=['--clean',clean,'--gold',goldFile,'--plan',planPath,'--out',faulty,'--qa-gold-out',qaFile,'--lock-out',lockFile];
  let run=call(fixture,...options);assert.equal(run.status,0,run.stderr);assertions++;
