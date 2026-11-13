@@ -2,6 +2,14 @@
 
 This is a **measurement-harness-only** change. Preserve v6.3.2 skill, Figma Inspector, DOM Inspector, Difference Analyst and Fixer behavior. Do not modify them merely to improve scores.
 
+## Preparing the design BEFORE any A/B/C Vue UI exists
+
+`readiness-gate.mjs` has two distinct phases. Run `--phase pre-build` to verify Figma Gold, shared asset pack, Chromium smoke and approved budget **without** requiring a mapping to a yet-unbuilt Vue DOM. It yields `READY_FOR_BUILD(_WITH_SUBSTITUTES)`, **not** a full QA PASS.
+
+After each A/B/C has been built, independently create per-implementation mapping of all mandatory Figma region IDs to actual DOM selectors, run browser capture and frozen evaluator, and use `--phase post-build --mapping <private-per-group-mapping.json>` to validate that contract. The final fidelity score must reject missing/hidden elements. Never supply the hidden Gold to a development agent.
+
+If mandatory Gold, asset integrity, browser smoke or approved budget fails even at pre-build, paid API calls remain blocked. Refer to `references/v6.3.3-blocked-recovery.md`.
+
 ## A/B/C definitions and the controlled variable
 
 | Group | Skill | Model | Workflow |

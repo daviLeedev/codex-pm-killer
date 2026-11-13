@@ -38,6 +38,7 @@ try{
   if(!max||max>j.capMicro)throw Error('Invalid request maximum');
   if(j.requests.some(x=>x.id===id))throw Error('Request ID already used; never silently retry a paid request');
   if(j.requests.some(x=>['IN_FLIGHT','RECEIVED','UNCERTAIN'].includes(x.state)))throw Error('Unsettled/uncertain request exists: recover/settle before new paid calls');
+  if(j.requests.some(x=>x.costExceededReservation===true))throw Error('Previous request exceeded its reservation: manual charge review required before any new paid calls');
   const t=totals(j);if(micro(t.available)<max)throw Error('Approved budget ceiling reached; refuse reservation');
   j.requests.push({id,model,state:'IN_FLIGHT',reservedMicro:max,actualMicro:null,createdAt:new Date().toISOString(),rawSha256:null});j.events.push({type:'RESERVED',id,at:new Date().toISOString()});await write(j);
   output({status:'RESERVED',id,model,reservedUsd:money(max),totals:totals(j)});

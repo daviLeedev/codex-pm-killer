@@ -28,9 +28,10 @@ if(goldLock.status!=='FROZEN_RECORDED_EVIDENCE'||goldLock.truthSha256!==goldSha2
  throw Error('GOLD_LOCK_NOT_DIRECT_EVIDENCE_VERIFIED');
 if(assetLock.status!=='READY'||assetLock.manifestSha256!==assetManifestSha256||assetLock.issues?.length)
  throw Error('SHARED_ASSET_LOCK_NOT_VERIFIED');
-if(!['READY','READY_WITH_SUBSTITUTES'].includes(readiness.status)||readiness.truthSha256!==goldSha256||
+if(!['READY','READY_WITH_SUBSTITUTES','READY_FOR_BUILD','READY_FOR_BUILD_WITH_SUBSTITUTES'].includes(readiness.status)||readiness.truthSha256!==goldSha256||
  readiness.packSha256!==assetLock.manifestSha256||readiness.approvedCapUsd!==p.approvedCapUsd)
  throw Error('V632_READINESS_GATE_NOT_PASSED_FOR_THIS_RUN');
+if(readiness.phase==='pre-build'&&readiness.postBuildMappingRequired!==true)throw Error('PRE_BUILD_MUST_REQUIRE_FINAL_DOM_MAPPING');
 const gold=await parse(inputs.goldTruth);
 const checks=(gold.layers??[]).flatMap(l=>l.checks??[]);
 if(gold.status!=='FROZEN_VERIFIED'||checks.length!==150||new Set(checks.map(x=>x.id)).size!==150)
@@ -73,7 +74,7 @@ const lock={schemaVersion:1,runId:p.runId,scope:p.scope,protocolVersion:p.protoc
  models:p.models,reasoning:p.reasoning,viewport:p.viewport,browserVersion:p.browserVersion,
  skillCommit:p.skillCommit,evaluatorCommit:p.evaluatorCommit,approvedCapUsd:p.approvedCapUsd,
  sourceHashes,goldSha256,qaGoldSha256,assetManifestSha256,goldLockSha256:await hashFile(inputs.goldLock),assetLockSha256:await hashFile(inputs.assetLock),readinessSha256:await hashFile(inputs.readinessReport),goldPropertyGroups:counts,workspaces,instructions,
- separateGoldRequired:true,productionQaIndependentEvaluatorRequired:true,parallelCRequired:true,
+ separateGoldRequired:true,productionQaIndependentEvaluatorRequired:true,parallelCRequired:true,postBuildMappingRequired:readiness.phase==='pre-build',
  status:'PREPARED_NOT_EXECUTED',
  caveat:'Worktrees and prompt separation are prepared, but host-level filesystem/browser permissions and agent prompt ingestion must be independently audited.'};
 await writeJSON(path.join(dir,'private-plan-lock.json'),lock);
