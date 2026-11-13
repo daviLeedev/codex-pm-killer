@@ -23,6 +23,22 @@ for(const secret of ['goldTruth','qaGold']) {
 }
 const sourceHashes={I:await treeHash(inputs.implementationProject),II:await treeHash(inputs.qaFaultyProject)};
 const [goldSha256,qaGoldSha256,assetManifestSha256]=await Promise.all([hashFile(inputs.goldTruth),hashFile(inputs.qaGold),hashFile(inputs.assetManifest)]);
+const gold=await parse(inputs.goldTruth);
+const checks=(gold.layers??[]).flatMap(l=>l.checks??[]);
+if(gold.status!=='FROZEN_VERIFIED'||checks.length!==150||new Set(checks.map(x=>x.id)).size!==150)
+ throw Error('E2E_GOLD_MUST_BE_VERIFIED_150_UNIQUE_ASSERTIONS');
+const groups={
+ geometry:new Set(['width','height','x','y','left','top','right','bottom']),
+ spacing:new Set(['gap','padding','padding_top','padding_right','padding_bottom','padding_left']),
+ typography:new Set(['font','font_size','size','weight','font_weight','line_height','letter_spacing','line_count']),
+ color:new Set(['fill','color','background_color','placeholder_color']),
+ text:new Set(['text','placeholder_text']),asset:new Set(['icon_present','image_loaded','asset_kind','asset_pack_id','object_fit']),
+ structure:new Set(['child_count','element_present','horizontal_overflow'])
+};
+const quotas={geometry:30,spacing:20,typography:15,color:8,text:5,asset:5,structure:5};
+const counts=Object.fromEntries(Object.entries(groups).map(([k,v])=>[k,checks.filter(c=>v.has(c.property)).length]));
+for(const [k,min] of Object.entries(quotas))if(counts[k]<min)throw Error('GOLD_UNBALANCED_'+k.toUpperCase()+': '+counts[k]+' < '+min);
+if(checks.filter(c=>c.property==='gap').length<5)throw Error('GOLD_GAP_COVERAGE_BELOW_FIVE');
 const qa=await parse(inputs.qaGold);
 if(!Array.isArray(qa.mutatedIds)||qa.mutatedIds.length<20||!Array.isArray(qa.controlIds)||qa.controlIds.length<20)throw Error('QA_GOLD_NEEDS_20_MUTATIONS_AND_20_CONTROLS');
 const discovered=new Set([...qa.mutatedIds,...qa.controlIds]);
@@ -46,7 +62,7 @@ for(const track of ['I','II'])for(const group of ['A','B','C']){
 const lock={schemaVersion:1,runId:p.runId,scope:p.scope,protocolVersion:p.protocolVersion,figmaUrl:p.figmaUrl,
  models:p.models,reasoning:p.reasoning,viewport:p.viewport,browserVersion:p.browserVersion,
  skillCommit:p.skillCommit,evaluatorCommit:p.evaluatorCommit,approvedCapUsd:p.approvedCapUsd,
- sourceHashes,goldSha256,qaGoldSha256,assetManifestSha256,workspaces,instructions,
+ sourceHashes,goldSha256,qaGoldSha256,assetManifestSha256,goldPropertyGroups:counts,workspaces,instructions,
  separateGoldRequired:true,productionQaIndependentEvaluatorRequired:true,parallelCRequired:true,
  status:'PREPARED_NOT_EXECUTED',
  caveat:'Worktrees and prompt separation are prepared, but host-level filesystem/browser permissions and agent prompt ingestion must be independently audited.'};

@@ -13,18 +13,19 @@ export function scoreQA(gold,detected,before,after){
  const pre=new Map((before.checks??[]).map(x=>[x.id,x.status]));
  const post=new Map((after.checks??[]).map(x=>[x.id,x.status]));
  const missing=[...muts,...controls].filter(id=>!pre.has(id)||!post.has(id));
+ const invalidStartingConditions=[...muts].filter(id=>pre.get(id)!=='MISMATCH').concat([...controls].filter(id=>pre.get(id)!=='MATCH'));
  const fixed=[...muts].filter(id=>pre.get(id)==='MISMATCH'&&post.get(id)==='MATCH');
  const attempted=new Set((detected.attemptedFixIds??[]).filter(id=>muts.has(id)));
  const regressed=[...controls].filter(id=>pre.get(id)==='MATCH'&&post.get(id)==='MISMATCH');
  return {tp,fp,fn,precision:tp+fp?tp/(tp+fp):null,recall:tp/(tp+fn),confirmedFixes:fixed.length,attemptedFixes:attempted.size,
   fixSuccess:attempted.size?fixed.filter(id=>attempted.has(id)).length/attempted.size:null,
   regressions:regressed.length,regressionIds:regressed,
-  missingIndependentAssertions:missing,status:missing.length?'INCONCLUSIVE':'SCORED'};
+  missingIndependentAssertions:missing,invalidStartingConditions,status:missing.length||invalidStartingConditions.length?'INCONCLUSIVE':'SCORED'};
 }
 export function scoreFidelity(report,lock){
  const c=report.counts??{},sum=statuses.reduce((v,k)=>v+(c[k]??0),0),rows=report.checks??[];
  const valid=sum===150&&rows.length===150&&new Set(rows.map(x=>x.id)).size===150&&
-  statuses.every(k=>Number.isInteger(c[k])&&c[k]>=0)&&rows.every(x=>statuses.includes(x.status))&&
+  statuses.every(k=>Number.isInteger(c[k])&&c[k]>=0)&&rows.every(x=>statuses.includes(x.status))&&(!report.scopeErrors?.length)&&!['BLOCKED','SYNTHETIC_ONLY'].includes(report.status)&&
   statuses.every(k=>rows.filter(x=>x.status===k).length===c[k])&&
   report.expectedSha256===lock.goldSha256&&typeof report.actualSha256==='string'&&/^[0-9a-f]{64}$/i.test(report.actualSha256);
  return {status:valid?'SCORED':'INCONCLUSIVE',match:valid?c.MATCH:null,mismatch:valid?c.MISMATCH:null,notEvaluable:valid?c.NOT_EVALUABLE:null,
@@ -69,6 +70,7 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  for(const t of TRACKS)for(const g of GROUPS){
   const folder=path.join(dir,'evidence','track-'+t,g),c=cost(ledger,t,g);
   const row={state:'NOT_RUN',model:lock.models[g],estimatedUsd:c.usd,requests:c.requests};
+  if(c.requests===0){row.reason='NO_API_USAGE_JOURNAL_FOR_GROUP';report.tracks[t][g]=row;continue}
   try{
    const meta=await parse(path.join(folder,'run.json'));
    if(meta.initialProjectSha256!==lock.sourceHashes[t]||meta.model!==lock.models[g]||meta.reasoning!==lock.reasoning||meta.completed!==true)throw Error('RUN_METADATA_UNMATCHED');

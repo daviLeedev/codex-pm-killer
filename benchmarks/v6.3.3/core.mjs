@@ -44,5 +44,6 @@ export function validatePlan(p){
  if(!['low','medium','high'].includes(p.reasoning)||!Number.isInteger(p.viewport?.width)||!Number.isInteger(p.viewport?.height))throw Error('PLAN_RUNTIME_UNFIXED');
  if(typeof p.approvedCapUsd!=='number'||p.approvedCapUsd<=0||p.approvedCapUsd>10)throw Error('BUDGET_NOT_APPROVED');
  if(!p.skillCommit||!p.evaluatorCommit||!p.protocolVersion||!p.browserVersion)throw Error('VERSION_LOCK_MISSING');
+ if(/codex[-_]pm[-_]killer|SKILL\.md|gold[-_ ]?(?:dataset|truth|assertions)|benchmarks\/v6\.3/i.test(p.task))throw Error('BASELINE_TASK_PRECONTAMINATED');
 }
 export function overlap(a,b){return Math.max(0,Math.min(a.end,b.end)-Math.max(a.start,b.start))}

@@ -28,7 +28,7 @@ for(const e of events){
  }else if(e.type==='task.end'){
   const s=starts.get(e.taskId);
   if(!s||s.t>=t||s.workerId!==e.workerId||s.sessionId!==e.sessionId)errors.push('INVALID_TASK_INTERVAL: '+e.taskId);
-  else intervals.push({taskId:e.taskId,workerId:e.workerId,sessionId:e.sessionId,role:s.role,start:s.t,end:t});
+  else intervals.push({taskId:e.taskId,workerId:e.workerId,sessionId:e.sessionId,role:s.role,track:s.track,start:s.t,end:t});
  }else if(e.type==='browser.acquire'){
   if(locks.has(e.browserId))errors.push('BROWSER_OWNER_CONFLICT: '+e.browserId);
   locks.set(e.browserId,{...e,t});
@@ -39,18 +39,19 @@ for(const e of events){
  }
 }
 if(locks.size)errors.push('UNCLOSED_BROWSER_LOCK');
-let pair=null;
+const pairByTrack={I:null,II:null};
 for(let i=0;i<intervals.length;i++)for(let j=i+1;j<intervals.length;j++){
  const x=intervals[i],y=intervals[j],ms=overlap(x,y);
+ if(!['I','II'].includes(x.track)||x.track!==y.track)continue;
  if(x.sessionId!==y.sessionId&&x.workerId!==y.workerId&&ms>=minOverlap&&
     spawns.get(x.sessionId)?.proofValid&&spawns.get(y.sessionId)?.proofValid&&
     spawns.get(x.sessionId)?.workerId===x.workerId&&spawns.get(y.sessionId)?.workerId===y.workerId&&
     spawns.get(x.sessionId)?.t<=x.start&&spawns.get(y.sessionId)?.t<=y.start)
-  if(!pair||ms>pair.overlapMs)pair={a:x.taskId,b:y.taskId,workers:[x.workerId,y.workerId],sessions:[x.sessionId,y.sessionId],overlapMs:ms};
+  if(!pairByTrack[x.track]||ms>pairByTrack[x.track].overlapMs)pairByTrack[x.track]={a:x.taskId,b:y.taskId,workers:[x.workerId,y.workerId],sessions:[x.sessionId,y.sessionId],overlapMs:ms};
 }
 for(let i=0;i<lockIntervals.length;i++)for(let j=i+1;j<lockIntervals.length;j++)
  if(lockIntervals[i].owner!==lockIntervals[j].owner&&overlap(lockIntervals[i],lockIntervals[j]))errors.push('OVERLAPPING_FIGMA_BROWSER_OWNERS');
-if(!pair)errors.push('NO_ATTESTED_CONCURRENT_INDEPENDENT_SESSIONS');
-const result={schemaVersion:1,status:errors.length?'C_PARALLEL_BLOCKED':'PARALLEL_HOST_LOG_RECORDED',parallelPair:pair,spawnCount:spawns.size,completedTasks:intervals.length,errors,
+for(const track of ['I','II'])if(!pairByTrack[track])errors.push('NO_ATTESTED_CONCURRENT_SESSIONS_TRACK_'+track);
+const result={schemaVersion:1,status:errors.length?'C_PARALLEL_BLOCKED':'PARALLEL_HOST_LOG_RECORDED',parallelPairs:pairByTrack,spawnCount:spawns.size,completedTasks:intervals.length,errors,
  caveat:'Hashed host logs and overlapping timestamps are recorded evidence, not independent proof of real remote model execution. Human/host attestation is still required.'};
 await writeJSON(out,result);console.log(JSON.stringify(result));if(errors.length)process.exitCode=2;
