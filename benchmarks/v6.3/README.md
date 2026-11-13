@@ -53,6 +53,20 @@ The previously supplied `actual-evaluation-frozen.json` has exactly 150 assertio
 
 See `references/v6.3-benchmark-protocol.md` for Track I implementation fidelity vs Track II independent mutation QA. All A/B/C experiments share a pre-frozen ground truth, same initial app conditions and combined approved $5 budget. A/B same model/config; C must state whether real subagents spawned or host mediated sequential contexts. `n=1` is exploratory only.
 
+## v6.3.2 budget authorization for NEW experiment
+
+The original default cap is **$5**. A new Algolia Home A/B/C run has been authorized by the user for a combined **$10 maximum**. Do NOT change any prior run's $5 ledger or frozen experiment history.
+
+Write a private `.design-qa/approved-budget.json` from the user's instruction, recording `schemaVersion:1`, `currency:"USD"`, `scope:"ALL_AB_C"`, `approvedMaxUsd:10`, `approvedBy:"USER_EXPLICIT"`, and a **genuine private evidenceId** linking the explicit approval. Do not invent an evidence ID or commit it to public Git.
+
+```bash
+node benchmarks/v6.3/budget-journal.mjs init --dir .design-qa/new-home-run/budget --cap-usd 10.000000 --approval .design-qa/approved-budget.json
+node benchmarks/v6.3/verify-approved-budget.mjs --approval .design-qa/approved-budget.json --ledger .design-qa/new-home-run/budget/ledger.json
+# Supply --ledger .design-qa/new-home-run/budget/ledger.json to readiness-gate.mjs.
+```
+
+Approval bytes are pinned by SHA-256. The local validator cannot authenticate the approving person's identity or verify actual provider billing. Do not increase the cap during a run.
+
 ## v6.3.2 readiness & asset pack
 
 - `asset-pack.mjs`: freeze and validate a **private** common substitute image pack (SHA-256, actual image dimensions, asset IDs, licensing, original/substitute distinction). The template in `assets/v6.3.2-asset-pack.template.json` is intentionally incomplete until real files are supplied.
