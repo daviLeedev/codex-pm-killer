@@ -26,7 +26,7 @@ Start **fresh** A/B/C workspaces from the same initial Vue project, inspect mobi
 
 ## Track II fixture preparation (private source, no previous A/B/C output)
 
-Create a neutral clean Vue Home reference independently of A/B/C, with the same Figma Home and common fonts/assets. Do not reuse historical A/B/C apps. Freeze a PRIVATE 20-defect mutation plan + 20 untouched controls (see `assets/v6.3.3-qa-mutation-plan.example.json`). Source replacements must be unambiguous and match assertion IDs in the verified 150-item Figma Gold.
+Create a neutral clean Vue Home reference independently of A/B/C, with the same Figma Home and common fonts/assets. The 20+20 mutation plan can be proposed automatically by `qa-plan.mjs --clean PRIVATE/clean-home --gold PRIVATE/gold.json --out PRIVATE/qa-plan.json --report PRIVATE/plan-report.json`; candidates require unique `data-bench-id`/class bindings and simple source declarations. The real Chromium proof remains mandatory. Do not reuse historical A/B/C apps. Freeze a PRIVATE 20-defect mutation plan + 20 untouched controls (see `assets/v6.3.3-qa-mutation-plan.example.json`). Source replacements must be unambiguous and match assertion IDs in the verified 150-item Figma Gold.
 
 ```bash
 node benchmarks/v6.3.3/qa-fixture.mjs --clean PRIVATE/clean-home --gold PRIVATE/gold.json --plan PRIVATE/qa-plan.json --out PRIVATE/faulty-home --qa-gold-out PRIVATE/HIDDEN/qa-gold.json --lock-out PRIVATE/HIDDEN/qa-lock.json

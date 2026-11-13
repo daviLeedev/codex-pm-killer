@@ -33,6 +33,7 @@
 - Keep historical v6.3.x results immutable; compare versions only when Gold AND independent evaluator locks are equal.
 
 **Track II fixture follow-up (2026-11-13):**
+- `qa-plan.mjs` suggests 20 private Gold-backed source mutations and 20 controls from unambiguous Vue CSS declarations. Insufficient or ambiguous source mapping is BLOCKED, never silently guessed.
 - `qa-fixture.mjs` applies exactly 20 **hidden in-place source mutations** to a separately prepared clean Vue Home and stores 20 healthy control IDs in private QA Gold, outside agent workspaces.
 - `qa-fixture-proof.mjs` verifies that actual Chromium evidence shows exactly those 20 frozen assertions become MISMATCH while 20 controls stay MATCH. Collateral mismatches block the fixture.
 - This does not create a proprietary Figma-based neutral clean Home automatically. That private reference and original new Gold data must be supplied by the execution host; no previous A/B/C implementation can be reused.
