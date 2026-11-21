@@ -92,7 +92,7 @@ try{
  await fs.mkdir(path.dirname(screenshotPath),{recursive:true});
  await page.screenshot({path:screenshotPath,fullPage:true,animations:'disabled'});
  result={schemaVersion:1,status:warnings.length||errors.length?'PARTIAL':'DOM_DISCOVERED',
-  captureEnvironment:url?'REAL_APP_RUNTIME':'ISOLATED_HTML_FIXTURE',route:url||'file-fixture',viewport:{width,height},
+  captureEnvironment:url?'REAL_APP_RUNTIME':'ISOLATED_HTML_FIXTURE',route:url||'file-fixture',viewport:{width,height},coverageComplete:!second.truncated&&!warnings.length,
   elements:second.items,truncated:second.truncated,observedNodes:second.observed,
   horizontalOverflow:second.overflow,errors,warnings,blockedExternalRequests,
   screenshotPath:path.basename(screenshotPath),screenshotSha256:sha256(await fs.readFile(screenshotPath)),

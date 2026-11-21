@@ -49,6 +49,7 @@ function add(region,property,expect,actual,category,tol=0,override=null){
 }
 for(const region of f.regions){
  const link=links.get(region.id),el=link?.nodeId?dom.get(link.nodeId):null;
+ if(link?.status==='AMBIGUOUS_MAPPING'){unknown.push({regionId:region.id,property:'mapping',reason:'AMBIGUOUS_MAPPING'});continue}
  if(!link||link.status==='STRUCTURAL_MISSING'||!el||el.visible===false){
   issues.push({schemaVersion:1,issueId:name(region.id,'missing'),category:'STRUCTURE',severity:region.required?'P0':'P2',
    status:'DETECTED',regionId:region.id,figmaLayer:region.path,domSelector:null,
@@ -56,7 +57,6 @@ for(const region of f.regions){
    evidence:{figmaSha256:region.evidenceSha256,runtimeSha256},impactRegionIds:[region.id],attempts:[]});
   continue;
  }
- if(link.status==='AMBIGUOUS_MAPPING'){unknown.push({regionId:region.id,property:'mapping',reason:'AMBIGUOUS_MAPPING'});continue}
  const tolerances={width:1,height:1,x:1,y:1};
  for(const [p,t] of Object.entries(tolerances))add(region,p,region.box?.[p],el.box?.[p],'GEOMETRY',t);
  const styles={paddingTop:'SPACING',paddingBottom:'SPACING',paddingLeft:'SPACING',paddingRight:'SPACING',gap:'SPACING',

@@ -46,7 +46,7 @@ async function operate(){
  }else if(verb==='capture'||verb==='next'){
   required(data.captureEnvironment==='REAL_APP_RUNTIME'&&
    data.viewport?.width===s.viewport.width&&data.viewport?.height===s.viewport.height&&
-   Array.isArray(data.regions)&&data.regions.length&&
+   ((Array.isArray(data.regions)&&data.regions.length)||(Array.isArray(data.elements)&&data.elements.length))&&
    !data.errors?.length&&!data.captureWarnings?.length&&!data.blockedExternalRequests?.length&&
    data.coverageComplete===true,'ACTUAL_RUNTIME_CAPTURE_REQUIRED');
   if(verb==='next')required(s.iteration<s.maxIterations,'ITERATION_BUDGET_EXHAUSTED');
@@ -82,6 +82,7 @@ async function operate(){
   required(data.scopeEqual===true&&data.currentCaptureEnvironment==='REAL_APP_RUNTIME','POST_PATCH_CAPTURE_MUST_MATCH_SCOPE');
   if(data.status==='ACCEPT'){
    required(data.targetImproved===true&&data.regressionCount===0&&data.newP0===0,'FALSE_ACCEPT_VERDICT');
+   for(const issue of s.issues)if(data.resolvedIssueIds?.includes(issue.issueId))issue.status='VERIFIED';
    nextState='VERIFIED';
   }else{
    required(data.rollbackCompleted===true&&isSha(data.restoredSourceSha256)&&data.restoredSourceSha256===s.pendingPatch.beforeSourceSha256,

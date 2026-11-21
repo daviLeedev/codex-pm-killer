@@ -32,7 +32,15 @@ for(const region of ordered){
  const parent=mappings.find(m=>m.regionId===region.parentId&&m.status==='MATCHED_CANDIDATE')?.nodeId;
  const scored=[];
  for(const node of d.elements.filter(x=>x.visible===true&&!used.has(x.id))){
-  if(parent&&node.parentId!==parent)continue;
+  // Figma groups and Vue DOM wrappers can differ: parent matching is evidence, not a hard filter.
+  let parentDistance=null;
+  if(parent){
+   let current=node.parentId;
+   for(let depth=0;depth<5&&current;depth++){
+    if(current===parent){parentDistance=depth;break}
+    current=d.elements.find(e=>e.id===current)?.parentId??null;
+   }
+  }
   const components=[],weights=[];
   const add=(score,weight)=>{if(score!==null){components.push(score*weight);weights.push(weight)}};
   add(node.figmaHint===region.id?1:null,.7);
@@ -40,7 +48,7 @@ for(const region of ordered){
   add(roleScore(region.role,node.role),.19);
   add(boxScore(region.box,node.box,d.viewport.width,d.viewport.height),.30);
   add(region.order===node.order?1:Math.exp(-Math.abs(region.order-node.order)),.08);
-  if(parent)add(1,.15);
+  if(parent)add(parentDistance===null?0:Math.max(.4,1-parentDistance*.15),.15);
   const score=components.reduce((a,b)=>a+b,0)/Math.max(.0001,weights.reduce((a,b)=>a+b,0));
   if(score>.40)scored.push({nodeId:node.id,selector:node.selector,score:Number(score.toFixed(5)),node});
  }

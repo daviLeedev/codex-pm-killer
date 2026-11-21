@@ -17,10 +17,10 @@ try{
  const page=await context.newPage();
  await page.goto(url,{waitUntil:'domcontentloaded'});await page.evaluate(()=>document.fonts?.ready);
  const client=await context.newCDPSession(page);
- await client.send('DOM.enable');await client.send('CSS.enable');
+ await client.send('DOM.enable');
+ const sheets=new Map();client.on('CSS.styleSheetAdded',event=>sheets.set(event.header.styleSheetId,event.header));
+ await client.send('CSS.enable');
  const root=await client.send('DOM.getDocument',{depth:-1,pierce:true});
- const sheets=new Map();
- client.on('CSS.styleSheetAdded',event=>sheets.set(event.header.styleSheetId,event.header));
  const getSource=async sheetId=>{
   const head=sheets.get(sheetId);
   const uri=head?.sourceURL??head?.ownerNode??null;
