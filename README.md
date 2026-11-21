@@ -8,6 +8,25 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.4.0 — Evidence-Driven Fidelity Run Controller (2026-11-22)
+
+**Added**
+- `scripts/fidelity/run.mjs`: fail-closed state machine with immutable artifact SHA, iteration cap, patch receipts and mandatory independent final review.
+- `scripts/fidelity/inventory.mjs`: validates directly observed view-only Figma layer inventory, parent/order consistency and evidence file checksums.
+- `scripts/fidelity/core.mjs`, issue/run JSON schemas, and synthetic state-transition regression.
+
+**Changed**
+- Implementing and verifying UI now requires an explicit evidence-linked run protocol. It is not enough to merely read SKILL.md and claim QA completed.
+- Historical v6.3.3 benchmark Gold, independent evaluator and actual A/B/C results are unchanged.
+
+**Validation**
+- `node tests/fidelity/run-selftest.mjs` tests successful end-to-end state transitions, illegal DONE, false regression acceptance and same-actor final review rejection.
+- Existing v4–v6.3.3 CI suites remain mandatory.
+
+**Limitations**
+- This stage is an executable evidence/state gate, not a browser-login service or autonomous model runner. Actual Figma and local-app verification still requires a capable host.
+- Current synthetic tests do not demonstrate a live improvement in the Algolia A/B comparison.
+
 ### v6.3.3 — Standardized E2E + Independent QA Benchmark (2026-11-13)
 
 **Benchmark harness only — v6.3.2 skill UI analysis, browser Figma inspection and fixing algorithms unchanged.**
