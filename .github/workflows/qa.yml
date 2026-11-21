@@ -69,6 +69,7 @@ jobs:
         run: |
           node tests/v6.3.2-browser-selftest.mjs
           node tests/fidelity/browser-selftest.mjs
+          node tests/fidelity/patch-browser-selftest.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
