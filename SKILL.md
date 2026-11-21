@@ -3,7 +3,11 @@ name: codex-pm-killer
 description: Inspect view-only Figma designs using a host-provided authenticated browser (Codex, Claude Code, Gemini CLI, or another capable coding agent) without Figma MCP/API, extract observable layout/typography/spacing values and layer hierarchy, implement them in the existing web app, and iteratively verify rendered UI with Playwright and documented evidence. Use for Figma-to-code, pixel-accuracy audits, UI reconstruction, and especially strict detail-fix after an initial rough UI has been implemented, when the user provides a Figma link or an already-open Figma browser tab.
 ---
 
-# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.4.0)
+# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.4.1)
+
+## v6.4.1 coverage and source-driven issue discovery
+
+After verified Figma inventory, call `scripts/fidelity/discover-dom.mjs` on the ACTUAL local app; then `match-regions.mjs` and `detect.mjs`. Missing or ambiguous UI must remain recorded in the issue ledger. Use `trace-css.mjs` and `plan-fix.mjs` to produce bounded CSS cause hypotheses before any edit, never unverified claims of source provenance. All these commands operate on local app/browser and saved Figma evidence, not Figma APIs.
 
 ## v6.4 fidelity loop — required execution, not just documentation
 

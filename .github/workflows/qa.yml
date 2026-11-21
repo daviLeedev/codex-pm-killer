@@ -32,6 +32,12 @@ jobs:
       - run: node tests/v6.3.3-blocked-recovery-selftest.mjs
       - run: node tests/v6.3.3-qa-fixture-selftest.mjs
       - run: node tests/fidelity/run-selftest.mjs
+      - run: node tests/fidelity/matcher-selftest.mjs
+      - run: node --check scripts/fidelity/discover-dom.mjs
+      - run: node --check scripts/fidelity/match-regions.mjs
+      - run: node --check scripts/fidelity/detect.mjs
+      - run: node --check scripts/fidelity/trace-css.mjs
+      - run: node --check scripts/fidelity/plan-fix.mjs
       - run: node --check scripts/fidelity/run.mjs
       - run: node --check scripts/fidelity/inventory.mjs
       - run: node --check benchmarks/v6.3.3/qa-plan.mjs
@@ -56,5 +62,7 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Run isolated DOM browser mutation tests (not Figma E2E)
-        run: node tests/v6.3.2-browser-selftest.mjs
+        run: |
+          node tests/v6.3.2-browser-selftest.mjs
+          node tests/fidelity/browser-selftest.mjs
 
