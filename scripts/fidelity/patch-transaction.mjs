@@ -5,10 +5,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {cliArg,load,sha256,fileHash,atomicWrite,required,withLock,safePath} from './core.mjs';
 const op=process.argv[2],appRoot=cliArg('app-root'),dir=cliArg('tx-dir');
 if(!['apply','finalize','recover','status'].includes(op)||!appRoot||!dir)
- throw Error('Usage: patch-transaction.mjs apply|finalize|recover|status --app-root VUE_PROJECT --tx-dir PRIVATE_DIR [--plan PATCH.json] [--verdict V.json] [--out FINAL_VERDICT.json]');
+ throw Error('Usage: patch-transaction.mjs apply|finalize|recover|status --app-root VUE_PROJECT --tx-dir PRIVATE_DIR [--plan PATCH.json] [--verification VERIFY_INPUTS.json] [--out FINAL_VERDICT.json]');
 const app=await fs.realpath(appRoot),root=path.resolve(dir),txPath=path.join(root,'transaction.json');
 const allowed=/^src\/(?:[\w.-]+\/)*[\w.-]+\.(?:vue|css|scss)$/;
 const cssProperty=/^(?:--[\w-]+|[a-z][a-z0-9-]*)$/i;
@@ -48,7 +50,8 @@ async function act(){
    patchPlanSha256:await fileHash(planPath),startedAt:new Date().toISOString()};
   await atomicWrite(txPath,state);
   const temp=real+'.fidelity-'+randomUUID()+'.tmp';
-  await fs.writeFile(temp,next,{mode:0o600});
+  const fileMode=(await fs.stat(real)).mode&0o777;
+  await fs.writeFile(temp,next,{mode:fileMode});
   await fs.rename(temp,real);
   required(await fileHash(real)===afterSha,'POST_APPLY_SOURCE_HASH_MISMATCH');
   const receipt={schemaVersion:1,patchId:p.patchId,issueIds:p.issueIds,file:c.file,
@@ -67,9 +70,18 @@ async function act(){
  }
  if(op==='finalize'){
   required(state.status==='OPEN','TRANSACTION_ALREADY_FINISHED');
-  const verdictPath=cliArg('verdict');required(verdictPath,'VERDICT_ARTIFACT_REQUIRED');
-  const verdict=await load(verdictPath);
-  required(verdict.schemaVersion===1&&verdict.patchId===state.patchId&&['ACCEPT','REJECT'].includes(verdict.status),
+  // The controller runs its own verifier. A model-authored verdict JSON is not trusted.
+  const evidencePath=cliArg('verification');required(evidencePath,'INDEPENDENT_VERIFICATION_INPUTS_REQUIRED');
+  const evidence=await load(evidencePath);
+  const keys=['beforeDiff','afterDiff','beforeRuntime','afterRuntime','scope','patchReceipt'];
+  required(keys.every(k=>typeof evidence[k]==='string'&&evidence[k]),'VERIFICATION_INPUTS_INCOMPLETE');
+  const verifyScript=path.join(path.dirname(fileURLToPath(import.meta.url)),'verify-patch.mjs');
+  const verified=path.join(root,'independent-verified-verdict.json');
+  const params=keys.flatMap((key,i)=>['--'+['before-diff','after-diff','before-runtime','after-runtime','scope','patch'][i],evidence[key]]);
+  const run=spawnSync(process.execPath,[verifyScript,...params,'--out',verified],{encoding:'utf8',timeout:60000});
+  required([0,2].includes(run.status),'INDEPENDENT_VERIFIER_EXECUTION_FAILED: '+(run.stderr||run.stdout));
+  const verdict=await load(verified);
+  required(verdict.schemaVersion===1&&verdict.patchId===state.patchId&&verdict.verifiedBy==='scripts/fidelity/verify-patch.mjs'&&['ACCEPT','REJECT'].includes(verdict.status),
    'VERDICT_PATCH_BINDING_INVALID');
   required(await fileHash(real)===state.afterSourceSha256,'SOURCE_CHANGED_AFTER_PATCH_ISSUED');
   const final={...verdict,schemaVersion:1,transactionFile:state.file,
@@ -94,9 +106,13 @@ async function rollback(state,real,status){
  const bytes=await fs.readFile(path.join(root,state.backupFile));
  required(sha256(bytes)===state.beforeSourceSha256,'BACKUP_BYTES_CHANGED');
  const sha=await fileHash(real);
+ if(sha===state.beforeSourceSha256){
+  state.status='RECOVERED_NO_CHANGE';state.finishedAt=new Date().toISOString();
+  await atomicWrite(txPath,state);return;
+ }
  required(sha===state.afterSourceSha256,'SOURCE_CHANGED_AFTER_PATCH_DONT_OVERWRITE');
  const temp=real+'.rollback-'+randomUUID();
- await fs.writeFile(temp,bytes,{mode:0o600});await fs.rename(temp,real);
+ await fs.writeFile(temp,bytes,{mode:(await fs.stat(real)).mode&0o777});await fs.rename(temp,real);
  required(await fileHash(real)===state.beforeSourceSha256,'ROLLBACK_HASH_MISMATCH');
  state.status=status;state.finishedAt=new Date().toISOString();
  await atomicWrite(txPath,state);
