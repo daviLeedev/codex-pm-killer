@@ -26,4 +26,4 @@ node scripts/fidelity/run.mjs observe --workspace .design-qa/fidelity --artifact
 
 Do not give hidden benchmark Gold to the developer agent. Explicit failures are PARTIAL/BLOCKED, never automatic PASS.
 
-v6.4.1 implements real-browser DOM discovery, confidence-scored mapping, numeric structural mismatch detection and CSS root-cause candidate tracing. See references/css-root-cause.md. Reversible patch transactions are staged in v6.4.2.
+v6.4.1 implements real-browser DOM discovery, confidence-scored mapping, numeric structural mismatch detection and CSS root-cause candidate tracing. See references/css-root-cause.md. v6.4.2 provides actual one-property patch receipts, independent same-scope browser verification and recoverable source rollback. Read references/verified-fix-loop.md before applying a patch.

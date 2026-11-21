@@ -8,6 +8,25 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.4.2 — Reversible Evidence-Based UI Fix Loop & Region Visual Diff (2026-11-22)
+
+**Added**
+- `patch-transaction.mjs`: one scoped CSS declaration per patch, SHA-256-pinned original backup, crash recovery and **automatic source rollback on rejected verification**.
+- `verify-patch.mjs`: independent same-viewport real Chromium before/after evidence, screenshot hash and issue-by-issue regression checks; missing parent/neighbor coverage or worsened P0/P1 blocks acceptance.
+- `visual-diff.mjs` and `visual_diff.py`: per-region overlay/heatmap and explicit original-photo-content masking, without confusing pixel diagnostics with geometry or asset correctness.
+
+**Changed**
+- The patch transaction **reruns verify-patch itself** before accepting, rather than trusting a model-authored PASS JSON.
+- Rollbacks preserve prior source bytes and avoid silently overwriting files externally modified since patch application.
+
+**Validation**
+- Synthetic patch acceptance, rejecting regression, byte-exact rollback and interrupted patch recovery tests.
+- Python/Pillow region visual diagnostic with explicit unavailable-original-asset masks and output proof.
+
+**Limitations**
+- A real Vue project server and Figma read-only browser evidence remain host requirements. This does not itself operate a model or grant browser permissions.
+- Screenshot pixel differences are diagnostic and may vary by OS/font; exact original photo similarity is not claimed for substitutes.
+
 ### v6.4.1 — Coverage-first DOM Inspection & CSS Cause Candidates (2026-11-22)
 
 **Added**

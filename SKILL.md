@@ -3,7 +3,11 @@ name: codex-pm-killer
 description: Inspect view-only Figma designs using a host-provided authenticated browser (Codex, Claude Code, Gemini CLI, or another capable coding agent) without Figma MCP/API, extract observable layout/typography/spacing values and layer hierarchy, implement them in the existing web app, and iteratively verify rendered UI with Playwright and documented evidence. Use for Figma-to-code, pixel-accuracy audits, UI reconstruction, and especially strict detail-fix after an initial rough UI has been implemented, when the user provides a Figma link or an already-open Figma browser tab.
 ---
 
-# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.4.1)
+# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.4.2)
+
+## v6.4.2 measured patch transactions (mandatory)
+
+Use `scripts/fidelity/patch-transaction.mjs apply` for one scoped CSS declaration, then RECAPTURE the real app, execute `verify-patch.mjs` and call `patch-transaction.mjs finalize` with all verification inputs. Only actual same-scope improvement without new P0/P1 regressions is ACCEPT; otherwise backup bytes are restored. A model-authored PASS does not bypass the verifier. For visual differences run `visual-diff.mjs` with source photo masks only when originals are unavailable; numerical geometry and element recall are separate gates. Details: `references/verified-fix-loop.md`.
 
 ## v6.4.1 coverage and source-driven issue discovery
 

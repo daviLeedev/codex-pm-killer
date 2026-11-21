@@ -33,6 +33,10 @@ jobs:
       - run: node tests/v6.3.3-qa-fixture-selftest.mjs
       - run: node tests/fidelity/run-selftest.mjs
       - run: node tests/fidelity/matcher-selftest.mjs
+      - run: node tests/fidelity/patch-selftest.mjs
+      - run: node --check scripts/fidelity/patch-transaction.mjs
+      - run: node --check scripts/fidelity/verify-patch.mjs
+      - run: node --check scripts/fidelity/visual-diff.mjs
       - run: node --check scripts/fidelity/discover-dom.mjs
       - run: node --check scripts/fidelity/match-regions.mjs
       - run: node --check scripts/fidelity/detect.mjs
@@ -65,4 +69,11 @@ jobs:
         run: |
           node tests/v6.3.2-browser-selftest.mjs
           node tests/fidelity/browser-selftest.mjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --quiet pillow
+      - run: node tests/fidelity/visual-selftest.mjs
+        env:
+          FIDELITY_PYTHON: python
 
