@@ -37,7 +37,7 @@ try{
  r=run('detect.mjs','--design',fd,'--runtime',fr,'--mapping',fm,'--out',fo);
  assert.equal(r.status,0,r.stderr);n++;
  const report=JSON.parse(await fs.readFile(fo,'utf8'));
- assert(report.issues.some(x=>x.issueId==='MISSING-MISSING'&&x.severity==='P0'));n++;
+ assert(report.issues.some(x=>x.regionId==='Missing'&&x.comparison.property==='element_present'&&x.severity==='P0'));n++;
  const width=report.issues.find(x=>x.issueId==='CTA-WIDTH');
  assert.equal(width?.comparison.delta,-20);n++;
  assert(!report.issues.some(x=>x.regionId==='CTA'&&x.comparison.property==='backgroundColor'));n++;
