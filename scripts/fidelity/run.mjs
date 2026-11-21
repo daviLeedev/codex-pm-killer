@@ -77,7 +77,7 @@ async function operate(){
  }else if(verb==='verify'){
   required(['ACCEPT','REJECT'].includes(data.status)&&data.patchId===s.pendingPatch?.patchId&&
    isSha(data.beforeRuntimeSha256)&&isSha(data.afterRuntimeSha256)&&
-   data.beforeRuntimeSha256!==data.afterRuntimeSha256&&Array.isArray(data.recheckedRegionIds)&&
+   data.beforeRuntimeSha256!==data.afterRuntimeSha256&&data.verifiedBy==='scripts/fidelity/verify-patch.mjs'&&Array.isArray(data.recheckedRegionIds)&&
    data.recheckedRegionIds.length>0,'ACTUAL_POST_PATCH_REVERIFICATION_REQUIRED');
   required(data.scopeEqual===true&&data.currentCaptureEnvironment==='REAL_APP_RUNTIME','POST_PATCH_CAPTURE_MUST_MATCH_SCOPE');
   if(data.status==='ACCEPT'){
@@ -95,13 +95,31 @@ async function operate(){
   required(!blocking.length&&data.status==='INDEPENDENT_REVIEW_RECORDED'&&data.actor&&data.actor!==s.originalInspector&&
    isSha(data.figmaEvidenceSha256)&&isSha(data.runtimeEvidenceSha256)&&
    data.realFigmaViewerRevisited===true&&data.realAppRecaptured===true&&
-   data.criticalMissing===0&&data.regressions===0&&data.evaluableCoverage>=.95,
-   'INDEPENDENT_FINAL_GATE_NOT_SATISFIED');
+   data.criticalMissing===0&&data.regressions===0&&data.evaluableCoverage>=.95&&
+   data.finalDifferenceSha256===s.artifacts.detect?.sha256,'INDEPENDENT_FINAL_GATE_NOT_SATISFIED');
+  const source=await readArtifact(path.join(root,data.figmaEvidenceFile));
+  required(source.sha256===data.figmaEvidenceSha256&&source.data.method==='AUTHENTICATED_VIEW_ONLY_BROWSER'&&
+   source.data.frame?.id===s.frameId&&source.data.inspectorActor===data.actor,'NEW_ACTOR_FIGMA_BROWSER_EVIDENCE_MISSING');
+  const newer=await readArtifact(path.join(root,data.runtimeEvidenceFile));
+  required(newer.sha256===data.runtimeEvidenceSha256&&newer.data.captureEnvironment==='REAL_APP_RUNTIME'&&
+   newer.data.viewport?.width===s.viewport.width&&newer.data.viewport?.height===s.viewport.height&&
+   newer.data.coverageComplete===true&&!(newer.data.errors?.length)&&!(newer.data.warnings?.length),
+   'LATEST_REAL_BROWSER_EVIDENCE_INVALID');
+  const screenshotPath=path.resolve(path.dirname(path.join(root,data.runtimeEvidenceFile)),newer.data.screenshotPath??'');
+  required(screenshotPath.startsWith(root+path.sep)&&isSha(newer.data.screenshotSha256)&&
+   await fileHash(screenshotPath)===newer.data.screenshotSha256,'LATEST_SCREENSHOT_HASH_INVALID');
+  const map=await readArtifact(path.join(root,data.mappingEvidenceFile));
+  required(map.data.mappings?.length>0&&map.data.runtimeSha256===newer.sha256&&
+   map.data.mappings.every(m=>m.required===false||m.status==='MATCHED_CANDIDATE'),
+   'FINAL_REQUIRED_REGION_MAPPING_INCOMPLETE');
   nextState='INDEPENDENT_FINAL_REVIEW';
  }else if(verb==='done'){
   required(data.status==='FINAL_GATE_PASS'&&data.independentReviewSha256===s.artifacts.review.sha256&&
-   data.buildOrTypecheckPass===true&&data.noOpenP0===true&&data.noOpenP1===true,
-   'DONE_REQUIRES_VERIFIED_REVIEW_AND_BUILD');
+   data.buildOrTypecheckPass===true&&data.noOpenP0===true&&data.noOpenP1===true&&
+   isSha(data.buildEvidenceSha256),'DONE_REQUIRES_VERIFIED_REVIEW_AND_BUILD');
+  const build=path.join(root,data.buildEvidenceFile??'');
+  required(build.startsWith(root+path.sep)&&await fileHash(build)===data.buildEvidenceSha256,
+   'BUILD_PROOF_BYTES_REQUIRED');
   nextState='DONE';
  }
  s.history.push({action:verb,from:s.state,to:nextState,artifact:file,sha256,at:new Date().toISOString()});

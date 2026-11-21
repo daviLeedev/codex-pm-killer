@@ -45,19 +45,32 @@ try{
   afterRuntimeSha256:'d'.repeat(64),recheckedRegionIds:['CTA'],scopeEqual:true,currentCaptureEnvironment:'REAL_APP_RUNTIME',
   targetImproved:true,regressionCount:1,newP0:0});
  cli('verify',['--artifact',bad],false);checks++;
- const verdict=await write('valid-verdict.json',{...JSON.parse(await fs.readFile(bad,'utf8')),regressionCount:0});
+ const verdict=await write('valid-verdict.json',{...JSON.parse(await fs.readFile(bad,'utf8')),regressionCount:0,verifiedBy:'scripts/fidelity/verify-patch.mjs',resolvedIssueIds:['CTA-HEIGHT']});
  cli('verify',['--artifact',verdict]);checks++;
  const after=await write('after-runtime.json',runtime(50));cli('next',['--artifact',after]);checks++;
  cli('map',['--artifact',mapped]);checks++;
  const zero=await write('zero-diff.json',{schemaVersion:1,status:'ISSUES_RECORDED',designSha256:sha(await fs.readFile(inv)),runtimeSha256:sha(await fs.readFile(after)),
   coverage:{evaluable:1},issues:[]});cli('detect',['--artifact',zero]);checks++;
+ const realSecond=await write('second-browser-capture.json',{...runtime(50),status:'DOM_DISCOVERED',method:'LOCAL_REAL_BROWSER',route:'http://localhost:5173'});
+ const screenshot=await write('second-screenshot.png','OFFLINE_SYNTHETIC_ONLY_SCREENSHOT');
+ const secondData=JSON.parse(await fs.readFile(realSecond,'utf8'));
+ secondData.screenshotPath='second-screenshot.png';secondData.screenshotSha256=sha(await fs.readFile(screenshot));
+ await fs.writeFile(realSecond,JSON.stringify(secondData));
+ const secondFig=await write('second-figma.json',{schemaVersion:1,method:'AUTHENTICATED_VIEW_ONLY_BROWSER',
+  frame:{id:'HomeFrame'},inspectorActor:'different-synthetic-inspector'});
+ const secondMap=await write('second-mapping.json',{schemaVersion:1,mappings:[{regionId:'CTA',required:true,status:'MATCHED_CANDIDATE'}],
+  runtimeSha256:sha(await fs.readFile(realSecond))});
  const reviewBad=await write('review-self.json',{schemaVersion:1,status:'INDEPENDENT_REVIEW_RECORDED',actor:'synthetic-inspector',
-  figmaEvidenceSha256:'a'.repeat(64),runtimeEvidenceSha256:'b'.repeat(64),realFigmaViewerRevisited:true,realAppRecaptured:true,
-  criticalMissing:0,regressions:0,evaluableCoverage:1});
+  figmaEvidenceFile:path.basename(secondFig),figmaEvidenceSha256:sha(await fs.readFile(secondFig)),
+  runtimeEvidenceFile:path.basename(realSecond),runtimeEvidenceSha256:sha(await fs.readFile(realSecond)),
+  mappingEvidenceFile:path.basename(secondMap),finalDifferenceSha256:sha(await fs.readFile(zero)),
+  realFigmaViewerRevisited:true,realAppRecaptured:true,criticalMissing:0,regressions:0,evaluableCoverage:1});
  cli('review',['--artifact',reviewBad],false);checks++;
  const review=await write('review-different-actor.json',{...JSON.parse(await fs.readFile(reviewBad,'utf8')),actor:'different-synthetic-inspector'});
  cli('review',['--artifact',review]);checks++;
+ const buildLog=await write('build-log.txt','SYNTHETIC_BUILD_PASS');
  const final=await write('final-gate.json',{schemaVersion:1,status:'FINAL_GATE_PASS',independentReviewSha256:sha(await fs.readFile(review)),
+  buildEvidenceFile:path.basename(buildLog),buildEvidenceSha256:sha(await fs.readFile(buildLog)),
   buildOrTypecheckPass:true,noOpenP0:true,noOpenP1:true});
  cli('done',['--artifact',final]);checks++;
  const state=JSON.parse(await fs.readFile(path.join(root,'state.json'),'utf8'));
