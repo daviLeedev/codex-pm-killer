@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fidelity closed-loop run state",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "runId",
+    "frameId",
+    "viewport",
+    "state",
+    "history",
+    "artifacts",
+    "iteration"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "runId": {
+      "type": "string"
+    },
+    "frameId": {
+      "type": "string"
+    },
+    "viewport": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ]
+    },
+    "state": {
+      "enum": [
+        "INIT",
+        "FIGMA_OBSERVED",
+        "DOM_CAPTURED",
+        "MAPPED",
+        "DIFFS_RECORDED",
+        "ROOT_CAUSE_PROPOSED",
+        "PATCHED",
+        "VERIFIED",
+        "REVERTED",
+        "INDEPENDENT_FINAL_REVIEW",
+        "DONE",
+        "PARTIAL",
+        "BLOCKED"
+      ]
+    },
+    "history": {
+      "type": "array"
+    },
+    "artifacts": {
+      "type": "object"
+    },
+    "iteration": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxIterations": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "issues": {
+      "type": "array"
+    },
+    "pendingPatch": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

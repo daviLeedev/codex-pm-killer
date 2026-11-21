@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evidence-driven fidelity issue",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "issueId",
+    "severity",
+    "category",
+    "status",
+    "comparison",
+    "evidence"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "issueId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "enum": [
+        "STRUCTURE",
+        "GEOMETRY",
+        "SPACING",
+        "TYPOGRAPHY",
+        "COLOR",
+        "ASSET",
+        "VISUAL",
+        "BEHAVIOR"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2"
+      ]
+    },
+    "status": {
+      "enum": [
+        "DETECTED",
+        "EVIDENCED",
+        "ROOT_CAUSE",
+        "PATCHED",
+        "VERIFIED",
+        "REVERTED",
+        "UNRESOLVED"
+      ]
+    },
+    "figmaLayer": {
+      "type": "string"
+    },
+    "domSelector": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "comparison": {
+      "type": "object",
+      "required": [
+        "property",
+        "expected",
+        "actual"
+      ],
+      "properties": {
+        "property": {
+          "type": "string"
+        },
+        "expected": {
+          "type": "object"
+        },
+        "actual": {
+          "type": "object"
+        },
+        "delta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "figmaSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "runtimeSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object"
+    },
+    "impactRegionIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attempts": {
+      "type": "array"
+    }
+  }
+}

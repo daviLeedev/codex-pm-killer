@@ -3,7 +3,13 @@ name: codex-pm-killer
 description: Inspect view-only Figma designs using a host-provided authenticated browser (Codex, Claude Code, Gemini CLI, or another capable coding agent) without Figma MCP/API, extract observable layout/typography/spacing values and layer hierarchy, implement them in the existing web app, and iteratively verify rendered UI with Playwright and documented evidence. Use for Figma-to-code, pixel-accuracy audits, UI reconstruction, and especially strict detail-fix after an initial rough UI has been implemented, when the user provides a Figma link or an already-open Figma browser tab.
 ---
 
-# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.3.3)
+# Codex PM Killer — provider-neutral Figma QA + reusable knowledge loop (v6.4.0)
+
+## v6.4 fidelity loop — required execution, not just documentation
+
+For Figma implementation, strict QA or detail-fix, use `references/fidelity-execution.md` and run `scripts/fidelity/inventory.mjs` followed by the `scripts/fidelity/run.mjs` state transitions. Do not declare verification complete without a real Vue/Playwright browser capture, evidence-bound mismatch ledger, post-patch recapture, regression check, and a second direct Figma inspection from an independent actor. This is an executable gate; simply reading this instruction or submitting JSON with claimed PASS does not certify the UI.
+
+Benchmark development/evaluation remains independent from the product-fidelity loop; hidden v6.3.3 Gold is not a tool input to product agents.
 
 ## v6.3.3 independent benchmark protocol (measurement only)
 
