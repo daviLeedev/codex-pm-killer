@@ -32,7 +32,7 @@ try{
  assert.equal(discovered.elements.find(x=>x.id==='#search')?.text,'Search');
  assert.equal(discovered.elements.find(x=>x.id==='#asset')?.imageLoaded,true);
  const issuesPath=path.join(dir,'issues.json'),tracePath=path.join(dir,'trace.json');
- const issues={schemaVersion:1,status:'ISSUES_RECORDED',issues:[{issueId:'CTA-WIDTH',regionId:'CTA',domSelector:'#cta',comparison:{property:'width'}}]};
+ const issues={schemaVersion:1,status:'ISSUES_RECORDED',issues:[{issueId:'CTA-WIDTH',regionId:'CTA',severity:'P1',status:'DETECTED',domSelector:'#cta',comparison:{property:'width'}}]};
  await fs.writeFile(issuesPath,JSON.stringify(issues));
  await run('trace-css.mjs',['--url',url,'--width','375','--height','800','--issues',issuesPath,'--project-root',dir,'--out',tracePath]);
  const traced=JSON.parse(await fs.readFile(tracePath,'utf8'));
