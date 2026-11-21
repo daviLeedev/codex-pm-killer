@@ -34,6 +34,10 @@ jobs:
       - run: node tests/fidelity/run-selftest.mjs
       - run: node tests/fidelity/matcher-selftest.mjs
       - run: node tests/fidelity/patch-selftest.mjs
+      - run: node tests/fidelity/context-selftest.mjs
+      - run: node tests/fidelity/heldout-selftest.mjs
+      - run: node tests/fidelity/skill-entry-selftest.mjs
+      - run: node --check scripts/fidelity/context-pack.mjs
       - run: node --check scripts/fidelity/patch-transaction.mjs
       - run: node --check scripts/fidelity/verify-patch.mjs
       - run: node --check scripts/fidelity/visual-diff.mjs

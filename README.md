@@ -8,6 +8,23 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.4.3 — Thin Skill Entrypoint, Context Packing & Held-out Regression (2026-11-22)
+
+**Added**
+- `context-pack.mjs`: selects 1–3 prioritized evidence-backed UI issues plus relevant Vue CSS snippets, under an explicit byte budget.
+- Held-out non-ecommerce missing-element and geometry regression, and legacy full-skill reference archive.
+
+**Changed**
+- `SKILL.md` is now a concise tool-execution entrypoint instead of the former long mandatory history. Full v6.4.2 instructions remain archived for on-demand use.
+- The v6.3.3 independent benchmark Gold/evaluator and past A/B/C reports remain unchanged.
+
+**Validation**
+- New context-packing budget and stale-hash regression, held-out missing UI regression, and skill entrypoint/archive consistency test.
+- Existing Chromium/CDP and patch rollback suites remain part of CI.
+
+**Limitations**
+- Improved B-vs-A UI quality is a goal, not established until new blinded E2E + QA and held-out app runs.
+- Context bytes are not token billing counts. CSS rules and source snippets remain root-cause hypotheses until verified.
 ### v6.4.2 — Reversible Evidence-Based UI Fix Loop & Region Visual Diff (2026-11-22)
 
 **Added**
