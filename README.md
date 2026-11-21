@@ -8,6 +8,26 @@
 
 새 버전의 **실제 코드 변경**, **검증 범위**, **아직 지원하지 않는 기능**을 함께 기록합니다. 최신 버전이 위에 오며 각 버전의 변경 내용은 누적 보존합니다.
 
+### v6.4.1 — Coverage-first DOM Inspection & CSS Cause Candidates (2026-11-22)
+
+**Added**
+- Whole-page `discover-dom.mjs` real-Chromium inventory, including all visible nested controls, text, rects, common computed CSS, image readiness and stability check.
+- `match-regions.mjs` matches Figma regions against independent DOM inventory using text, role, hierarchy, order, geometry, and explicit design IDs; ambiguous mappings are NEVER promoted to PASS.
+- `detect.mjs` emits missing UI, geometry, spacing, typography, color/text and order evidence plus shared parent offset candidates.
+- `trace-css.mjs` records applied CDP matched CSS rules, plausible local Vue/SCSS source candidates (never falsely certified), and `plan-fix.mjs` ranks one-property scoped fixes.
+
+**Changed**
+- v6.4.0 state controller accepts whole-DOM discovery artifacts in addition to earlier region-specific runtime captures.
+- Shared parent constraints are soft evidence, avoiding false missing findings when Vue adds layout wrapper nodes.
+
+**Validation**
+- Synthetic missing/ambiguous region and color/geometry comparison regressions.
+- Real Playwright Chromium local-app DOM capture, CDP matched CSS rule and fix-plan regression.
+
+**Limitations**
+- Complete Figma inventory still requires authenticated read-only UI observation by the host.
+- CDP matching and source paths are candidates; they do not identify a uniquely correct CSS edit, and original photo pixel equality is not implied.
+
 ### v6.4.0 — Evidence-Driven Fidelity Run Controller (2026-11-22)
 
 **Added**

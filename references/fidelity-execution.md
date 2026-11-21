@@ -26,4 +26,4 @@ node scripts/fidelity/run.mjs observe --workspace .design-qa/fidelity --artifact
 
 Do not give hidden benchmark Gold to the developer agent. Explicit failures are PARTIAL/BLOCKED, never automatic PASS.
 
-v6.4.0 implements the evidence controller. DOM discovery, CSS tracing and reversible patch tooling are staged in later v6.4 PRs.
+v6.4.1 implements real-browser DOM discovery, confidence-scored mapping, numeric structural mismatch detection and CSS root-cause candidate tracing. See references/css-root-cause.md. Reversible patch transactions are staged in v6.4.2.
