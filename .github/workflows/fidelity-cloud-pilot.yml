@@ -23,6 +23,10 @@ jobs:
         run: node tests/fidelity/live-vue-cloud-pilot.mjs
         env:
           FIDELITY_PILOT_REPORT_DIR: fidelity-cloud-pilot-results
+      - name: Probe anonymous Figma community visible UI without API or credentials
+        run: node tests/fidelity/figma-viewer-probe.mjs
+        env:
+          FIDELITY_PILOT_REPORT_DIR: fidelity-cloud-pilot-results
       - name: Retain only sanitized engine and official A/B preflight results
         if: always()
         uses: actions/upload-artifact@v4
