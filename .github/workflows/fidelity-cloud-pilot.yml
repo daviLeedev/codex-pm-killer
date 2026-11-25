@@ -1,0 +1,33 @@
+name: v6.4.3 Real Vue Cloud Pilot and Official A/B Preflight
+on:
+  push:
+    branches: ['experiment/v643-real-vue-cloud-pilot']
+  pull_request:
+    branches: ['feat/v6.4.3-context-release-qa']
+permissions:
+  contents: read
+jobs:
+  real-vue-cloud-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install clean Vue + Vite + Playwright for live Chromium
+        run: |
+          npm install --no-save --no-package-lock vue@3.5.24 vite@7.2.4 @vitejs/plugin-vue@6.0.2 playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Live Vue 6-defect test, CSS fixes and forced rollback
+        run: node tests/fidelity/live-vue-cloud-pilot.mjs
+        env:
+          FIDELITY_PILOT_REPORT_DIR: fidelity-cloud-pilot-results
+      - name: Retain only sanitized engine and official A/B preflight results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v643-live-vue-cloud-pilot
+          path: fidelity-cloud-pilot-results/*.json
+          retention-days: 14
+          if-no-files-found: warn
