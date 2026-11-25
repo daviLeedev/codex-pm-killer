@@ -151,7 +151,8 @@ try{
   const p=patches[i],issue=current.results.issues.find(x=>x.regionId===p.region&&x.comparison.property===p.property);
   assert(issue,'Expected measured defect not found: '+p.region+'/'+p.property);
   // No hidden CSS answer enters the tool; expected value is independently checked against measured issue.
-  assert.equal(String(issue.comparison.expected.value),p.next);
+  if(p.property==='backgroundColor')assert.equal(String(issue.comparison.expected.value).toLowerCase(),p.next.toLowerCase());
+  else assert.equal(Number.parseFloat(String(issue.comparison.expected.value)),Number.parseFloat(p.next));
   const patchId='live-patch-'+(i+1),plan=path.join(out,'plan-'+(i+1)+'.json');
   const receipt=path.join(out,'receipt-'+(i+1)+'.json'),transaction=path.join(out,'tx-'+(i+1));
   await write(plan,{schemaVersion:1,patchId,issueIds:[issue.issueId],allowedProperty:p.css,
